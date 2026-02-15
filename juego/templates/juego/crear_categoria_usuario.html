@@ -71,6 +71,25 @@
         .preview-item:hover { background: rgba(255,255,255,0.05); }
         .preview-text b { color: #00d2ff; }
         .preview-sub { color: #aaa; font-size: 0.9rem; }
+
+        /* --- AJUSTE MOVIL: CREAR CATEGORIA --- */
+        @media (max-width: 600px) {
+            .container { padding: 20px; width: 95%; }
+            h2 { font-size: 1.5rem; }
+            
+            /* Caja de IA */
+            .ai-box { padding: 10px; }
+            .ai-controls { flex-direction: column; } /* Botones uno debajo de otro */
+            .btn-prompt, .file-input-wrapper, .btn-file { width: 100%; }
+            
+            /* Inputs */
+            .word-group { padding: 10px; }
+            input[type="text"] { font-size: 0.9rem; padding: 10px; }
+            
+            /* Botones acciones */
+            .btn-action { font-size: 1rem; padding: 12px; }
+        }
+        
     </style>
 </head>
 <body>
@@ -258,4 +277,5 @@
         }
     </script>
 </body>
+
 </html>
