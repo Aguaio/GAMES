@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Categoría</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; min-height: 100vh; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e272e, #000000); color: white; display: flex; justify-content: center; padding: 20px; }
+        
+        .container { width: 100%; max-width: 700px; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        h2 { color: #00d2ff; text-align: center; text-transform: uppercase; margin-top: 0; letter-spacing: 2px; }
+        
+        /* Inputs Estándar */
+        input[type="text"] { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 1rem;}
+        input:focus { border-color: #00d2ff; outline: none; }
+
+        /* SECCIÓN DE IMPORTACIÓN IA */
+        .ai-box {
+            background: rgba(142, 68, 173, 0.1); border: 1px solid #8e44ad;
+            padding: 20px; border-radius: 10px; margin-bottom: 25px;
+        }
+        .ai-title { color: #d2b4de; font-weight: bold; display: flex; align-items: center; gap: 10px; margin-bottom: 10px;}
+        .ai-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;}
+        
+        /* Botones IA */
+        .btn-prompt {
+            background: #8e44ad; color: white; border: none; padding: 10px 15px; flex: 1;
+            border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .btn-prompt:hover { background: #9b59b6; }
+
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; flex: 1; }
+        .btn-file {
+            border: 1px dashed #00d2ff; color: #00d2ff; background: rgba(0, 210, 255, 0.1);
+            padding: 10px; width: 100%; display: block; text-align: center; border-radius: 8px;
+            cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .btn-file:hover { background: rgba(0, 210, 255, 0.2); }
+        .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+
+        /* TEXT AREA PARA PEGAR */
+        textarea {
+            width: 100%; height: 100px; background: rgba(0,0,0,0.3); border: 1px solid #555;
+            color: #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; resize: vertical;
+            font-family: monospace; font-size: 0.9rem;
+        }
+        textarea:focus { border-color: #8e44ad; outline: none; }
+        .btn-parse {
+            width: 100%; background: #2c3e50; border: 1px solid #8e44ad; color: #d2b4de;
+            padding: 8px; border-radius: 0 0 8px 8px; cursor: pointer; font-weight: bold; margin-top: -5px;
+        }
+        .btn-parse:hover { background: #8e44ad; color: white; }
+
+        /* MANUAL INPUT */
+        .word-group { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 3px solid #00d2ff; }
+        .btn-action { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 10px; }
+        .btn-add { background: #3498db; margin-bottom: 20px; font-size: 1rem; padding: 10px; }
+        
+        .back-link { display: block; margin-bottom: 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; }
+        .back-link:hover { color: white; }
+
+        /* LISTA PREVIA */
+        .list-preview { margin-top: 20px; max-height: 300px; overflow-y: auto; border-top: 1px solid #333; }
+        .preview-item { 
+            display: flex; justify-content: space-between; padding: 10px; 
+            border-bottom: 1px solid #333; background: rgba(255,255,255,0.02); 
+            transition: 0.2s;
+        }
+        .preview-item:hover { background: rgba(255,255,255,0.05); }
+        .preview-text b { color: #00d2ff; }
+        .preview-sub { color: #aaa; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="{% url 'sala_espera' %}" class="back-link"><i class="fas fa-arrow-left"></i> Volver a Configuración</a>
+        
+        <h2>Crear Categoría</h2>
+
+        <div class="ai-box">
+            <div class="ai-title"><i class="fas fa-robot"></i> Importar desde IA</div>
+            
+            <div class="ai-controls">
+                <button class="btn-prompt" onclick="copyPrompt()">
+                    <i class="fas fa-copy"></i> 1. Copiar Prompt
+                </button>
+                <div class="file-input-wrapper">
+                    <button class="btn-file"><i class="fas fa-file-upload"></i> Subir .txt</button>
+                    <input type="file" id="txtUpload" accept=".txt" onchange="parseFile()">
+                </div>
+            </div>
+
+            <p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #ccc;">O pega el resultado aquí:</p>
+            <textarea id="pasteArea" placeholder="Ej: Animales&#10;Perro | Lobo | Zorro..."></textarea>
+            <button class="btn-parse" onclick="parsePaste()"><i class="fas fa-magic"></i> Procesar Texto Pegado</button>
+        </div>
+
+        <label style="font-weight:bold; color:#ddd;">Nombre de la Categoría</label>
+        <input type="text" id="catName" placeholder="Ej: Superhéroes">
+
+        <h3 style="margin-top: 20px; font-size: 1rem; color:#aaa;">Agregar Manualmente</h3>
+        <div class="word-group">
+            <input type="text" id="wMain" placeholder="Palabra Inocente (Ej: Superman)">
+            <input type="text" id="wRel1" placeholder="Señuelo (Ej: Batman)">
+            <input type="text" id="wRel2" placeholder="Difícil (Ej: Capitán América)">
+            <button class="btn-action btn-add" onclick="addWord()"><i class="fas fa-plus"></i> Agregar Pack</button>
+        </div>
+
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <label>Palabras Agregadas: <b id="countWords">0</b></label>
+            <button onclick="clearList()" style="background:none; border:none; color:#e74c3c; cursor:pointer;">Limpiar todo</button>
+        </div>
+
+        <div class="list-preview" id="previewList">
+            </div>
+
+        <button class="btn-action" onclick="saveCategory()" style="background: linear-gradient(45deg, #e74c3c, #c0392b); margin-top: 20px;">
+            PUBLICAR CATEGORÍA 🚀
+        </button>
+    </div>
+
+    <script>
+        let words = [];
+
+        // --- 1. LÓGICA DE IMPORTACIÓN IA (TXT & PASTE) ---
+        function copyPrompt() {
+            const prompt = `Genera una lista para un juego de palabras en un bloque de código de texto plano.\n1. La primera línea debe ser el Nombre de la Categoría.\n2. Las siguientes líneas deben ser tríos de palabras separados por '|'.\n3. Formato: Palabra Común | Señuelo Similar | Palabra Relacionada.\n4. Genera 15 tríos. No enumeres.`;
+            navigator.clipboard.writeText(prompt);
+            alert("¡Prompt copiado! Pégalo en ChatGPT/Gemini y copia la respuesta.");
+        }
+
+        // Procesar archivo .txt
+        function parseFile() {
+            const fileInput = document.getElementById('txtUpload');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                processText(e.target.result); // Reutilizamos lógica
+                fileInput.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        // Procesar texto pegado
+        function parsePaste() {
+            const text = document.getElementById('pasteArea').value;
+            if(!text.trim()) return alert("El cuadro de texto está vacío.");
+            processText(text);
+            document.getElementById('pasteArea').value = ''; // Limpiar
+        }
+
+        // LÓGICA CENTRAL DE PARSEO
+        function processText(content) {
+            const lines = content.split('\n');
+            let addedCount = 0;
+
+            // 1. Intentar sacar el nombre de la primera línea
+            if(lines.length > 0 && lines[0].trim() !== "") {
+                let possibleName = lines[0].trim();
+                // Si la primera línea no tiene pipes, asumimos que es el título
+                if(!possibleName.includes('|')) {
+                    document.getElementById('catName').value = possibleName;
+                }
+            }
+
+            // 2. Procesar líneas
+            for(let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if(!line || !line.includes('|')) continue; 
+
+                const parts = line.split('|');
+                if(parts.length >= 3) {
+                    words.push({
+                        principal: parts[0].trim(),
+                        rel1: parts[1].trim(),
+                        rel2: parts[2].trim()
+                    });
+                    addedCount++;
+                }
+            }
+            
+            renderList();
+            alert(`¡Importación completada! Se agregaron ${addedCount} packs.`);
+        }
+
+        // --- 2. LÓGICA MANUAL ---
+        function addWord() {
+            let m = document.getElementById('wMain').value.trim();
+            let r1 = document.getElementById('wRel1').value.trim();
+            let r2 = document.getElementById('wRel2').value.trim();
+
+            if(!m || !r1 || !r2) return alert("¡Debes llenar las 3 palabras!");
+
+            words.push({principal: m, rel1: r1, rel2: r2});
+            renderList();
+            
+            document.getElementById('wMain').value = '';
+            document.getElementById('wRel1').value = '';
+            document.getElementById('wRel2').value = '';
+            document.getElementById('wMain').focus();
+        }
+
+        function renderList() {
+            let html = '';
+            words.forEach((w, i) => {
+                html += `<div class="preview-item">
+                    <div class="preview-text">
+                        <b>${w.principal}</b>
+                        <div class="preview-sub">Señuelo: ${w.rel1} | Difícil: ${w.rel2}</div>
+                    </div>
+                    <i class="fas fa-trash" onclick="remove(${i})" style="color:#e74c3c; cursor:pointer; align-self: center;"></i>
+                </div>`;
+            });
+            document.getElementById('previewList').innerHTML = html;
+            document.getElementById('countWords').innerText = words.length;
+        }
+
+        function remove(i) {
+            words.splice(i, 1);
+            renderList();
+        }
+
+        function clearList() {
+            if(confirm("¿Borrar toda la lista?")) {
+                words = [];
+                renderList();
+            }
+        }
+
+        function saveCategory() {
+            let name = document.getElementById('catName').value.trim();
+            if(!name) return alert("Falta el nombre de la categoría");
+            if(words.length < 3) return alert("Agrega al menos 3 packs de palabras.");
+
+            let fd = new FormData();
+            fd.append('nombre_categoria', name);
+            fd.append('lista_palabras', JSON.stringify(words));
+
+            fetch("{% url 'crear_categoria_usuario' %}", {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                body: fd
+            })
+            .then(r => r.json())
+            .then(data => {
+                if(data.status === 'ok') {
+                    alert("¡Categoría creada exitosamente!");
+                    window.location.href = "{% url 'sala_espera' %}";
+                } else {
+                    alert("Error: " + data.msg);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

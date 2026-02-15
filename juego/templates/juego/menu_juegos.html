@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú de Juegos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; height: 100vh; overflow: hidden; font-family: 'Arial', sans-serif; background: linear-gradient(45deg, #02001f, #1f1a40, #0b0033); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: white; display: flex; flex-direction: column; align-items: center; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .particle { position: absolute; border-radius: 50%; background: white; opacity: 0; animation: warpSpeed linear infinite; z-index: 1; }
+        @keyframes warpSpeed { 0% { transform: translateY(100vh); opacity: 0; } 10% { opacity: var(--o); } 90% { opacity: var(--o); } 100% { transform: translateY(-20vh); opacity: 0; } }
+
+        .header-menu { z-index: 10; margin-top: 40px; text-align: center; }
+        
+        /* --- NUEVO ESTILO PARA EL NOMBRE DEL USUARIO --- */
+        .user-title {
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            /* Efecto Neón Azul Intenso */
+            text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff, 0 0 40px #0055ff;
+            font-size: 3.5rem; /* Tamaño grande */
+            font-weight: 900;
+            margin: 0;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+        }
+
+        .games-grid { z-index: 10; display: flex; gap: 30px; margin-top: 50px; flex-wrap: wrap; justify-content: center; }
+
+        .game-card {
+            width: 250px; height: 350px;
+            background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px; backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s; text-decoration: none; color: white;
+            position: relative; overflow: hidden;
+        }
+        .game-card:hover { transform: translateY(-10px); border-color: #e74c3c; box-shadow: 0 0 30px rgba(231, 76, 60, 0.4); }
+        .game-icon { font-size: 5rem; color: #e74c3c; margin-bottom: 20px; transition: 0.3s; }
+        .game-card:hover .game-icon { transform: scale(1.1); text-shadow: 0 0 20px #e74c3c; }
+        .game-title { font-size: 1.5rem; font-weight: bold; text-transform: uppercase; }
+        .game-desc { font-size: 0.9rem; color: #aaa; text-align: center; padding: 0 20px; margin-top: 10px; }
+        .coming-soon { opacity: 0.5; cursor: not-allowed; border-color: #555; pointer-events: none; }
+        
+        .btn-logout { position: absolute; top: 20px; right: 20px; z-index: 20; color: white; text-decoration: none; font-size: 1.5rem; opacity: 0.7; transition: 0.3s; }
+        .btn-logout:hover { opacity: 1; color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+    <a href="{% url 'logout_jugador' %}" class="btn-logout" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></a>
+
+    <div class="header-menu">
+        <h1 class="user-title">
+            <i class="fas fa-user-astronaut"></i> {{ nick }}
+        </h1>
+    </div>
+
+    <div class="games-grid">
+        <a href="{% url 'sala_espera' %}" class="game-card">
+            <div class="game-icon"><i class="fas fa-user-secret"></i></div>
+            <div class="game-title">El Impostor</div>
+            <div class="game-desc">Descubre quién miente antes de que sea tarde.</div>
+        </a>
+        <div class="game-card coming-soon">
+            <div class="game-icon" style="color: #555;"><i class="fas fa-lock"></i></div>
+            <div class="game-title" style="color: #888;">???</div>
+            <div class="game-desc">Próximamente...</div>
+        </div>
+    </div>
+
+    <script>
+        function createParticles() {
+            const body = document.querySelector('body');
+            for(let i=0; i < 60; i++){
+                let div = document.createElement('div');
+                div.className = 'particle'; div.style.left = Math.random() * 100 + 'vw';
+                let size = Math.random() * 3 + 1 + 'px';
+                div.style.width = size; div.style.height = size;
+                div.style.setProperty('--o', Math.random());
+                div.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                div.style.animationDelay = '-' + (Math.random() * 10) + 's';
+                body.appendChild(div);
+            }
+        }
+        createParticles();
+        setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000);
+    </script>
+</body>
+</html>

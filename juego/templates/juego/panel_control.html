@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Admin - El Impostor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
+    
+    .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+    .btn-red { background: #e74c3c; } .btn-green { background: #27ae60; } .btn-blue { background: #3498db; } .btn-danger { background: #c0392b; font-size: 0.9rem; padding: 5px 10px; color: white;}
+
+    .card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #2c3e50; margin-top:0; }
+    input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box;}
+    
+    /* ESTILO TABLAS */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: #f8f9fa; font-weight: bold; }
+    th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+    .badge { padding: 5px 10px; border-radius: 15px; color: white; font-size: 0.8rem; font-weight: bold; }
+
+    /* PAGINACIÓN */
+    .pagination-controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; align-items: center;}
+    .page-btn { padding: 5px 10px; cursor: pointer; }
+
+    /* MENSAJES */
+    .msg-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 80%; max-width: 600px; }
+    .msg { padding: 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); opacity: 1; transition: opacity 1s; background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+    .msg.error { background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+
+    /* Word creator styles */
+    .word-row { display: flex; gap: 10px; margin-bottom: 5px; align-items: center; }
+</style>
+</head>
+<body>
+    
+    <div class="msg-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {{ message.tags }}" data-tag="{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="header">
+        <h1><i class="fas fa-cogs"></i> Panel de Control</h1>
+        <a href="{% url 'logout_admin' %}" class="btn btn-red">Salir</a>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-clock"></i> Configuración Global</h2>
+        <form method="POST" style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+            {% csrf_token %}
+            <div><label>Sesión (min):</label><input type="number" name="tiempo_total" value="{{ config.tiempo_sesion_minutos }}"></div>
+            <div><label>Aviso (min):</label><input type="number" name="tiempo_aviso" value="{{ config.tiempo_aviso_minutos }}"></div>
+            <div><label>AFK Visual (min):</label><input type="number" name="tiempo_afk_visual" value="{{ config.tiempo_afk_visual_minutos }}"></div>
+            
+            <div style="background: #e8f8f5; padding: 5px; border-radius: 5px; border: 1px solid #2ecc71;">
+                <label><b>Tiempo Revelar Rol (seg):</b></label>
+                <input type="number" name="tiempo_revelacion" value="{{ config.tiempo_revelacion_segundos }}">
+            </div>
+
+            <button type="submit" name="update_time" class="btn btn-green">Guardar</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between;">
+            <h2><i class="fas fa-users"></i> Jugadores / Anfitriones</h2>
+            <small style="color: #888;"><i class="fas fa-sync fa-spin"></i> Actualizando...</small>
+        </div>
+
+        <table id="playersTable">
+            <thead>
+                <tr>
+                    <th>Nickname</th>
+                    <th>Última Actividad</th>
+                    <th>Estado</th>
+                    <th>Juego</th>      <th>Categoría</th>  </tr>
+            </thead>
+            <tbody id="playersBody"></tbody>
+        </table>
+        
+        <p id="noPlayersMsg" style="display:none; color:#777; text-align:center;">No hay usuarios conectados.</p>
+
+        <div id="paginationControls" class="pagination-controls" style="display: none;">
+            <button class="page-btn" onclick="prevPage()" id="btnPrev"><i class="fas fa-chevron-left"></i></button>
+            <span id="pageInfo">1 / 1</span>
+            <button class="page-btn" onclick="nextPage()" id="btnNext"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-list"></i> Crear Categoría</h2>
+        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+            <div style="flex: 2;"><input type="text" id="catName" placeholder="Nombre de la Categoría (Ej: Comida)"></div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 5px;">
+                <input type="checkbox" id="catPublic" style="width: auto;"> <label>Pública</label>
+            </div>
+        </div>
+
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px;">
+            <label><b>Agregar Pack de Palabras (Obligatorio 3):</b></label>
+            <div class="word-row">
+                <input type="text" id="wMain" placeholder="Inocente (Ej: Hamburguesa)" style="border-left: 3px solid #2ecc71;">
+                <input type="text" id="wRel1" placeholder="Señuelo (Ej: Hot Dog)" style="border-left: 3px solid #f1c40f;">
+                <input type="text" id="wRel2" placeholder="Difícil (Ej: Sándwich)" style="border-left: 3px solid #e74c3c;">
+                <button type="button" onclick="addWord()" class="btn btn-blue"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <table id="tempTable">
+            <thead><tr><th>Inocente</th><th>Señuelo</th><th>Difícil</th><th></th></tr></thead>
+            <tbody id="tempBody"></tbody>
+        </table>
+        
+        <div style="margin-top: 15px; text-align: right;">
+            <button onclick="saveCategory()" class="btn btn-green"><i class="fas fa-save"></i> GUARDAR CATEGORÍA</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Categorías del Sistema</h2>
+        <table id="catTable">
+            <thead><tr><th>Nombre</th><th>Palabras</th><th>Pública</th><th>Acción</th></tr></thead>
+            <tbody id="catBody"></tbody>
+        </table>
+    </div>
+
+    {% if user.is_superuser %}
+    <div class="card" style="border-left: 5px solid #8e44ad;">
+        <h2><i class="fas fa-user-shield"></i> Gestión de Equipo (Solo SuperAdmin)</h2>
+        <table>
+            <thead><tr><th>Usuario</th><th>Rol</th><th>Acción</th></tr></thead>
+            <tbody>
+                {% for admin in admins %}
+                <tr>
+                    <td>{{ admin.username }} {% if admin.id == user.id %}(Tú){% endif %}</td>
+                    <td>
+                        {% if admin.is_superuser %} <span class="badge" style="background:#8e44ad;">SUPER ADMIN</span>
+                        {% else %} <span class="badge" style="background:#3498db;">MODERADOR</span> {% endif %}
+                    </td>
+                    <td>
+                        {% if admin.id != user.id %}
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_admin_id" value="{{ admin.id }}">
+                            <button type="submit" class="btn-danger" onclick="return confirm('¿Eliminar?')">Eliminar</button>
+                        </form>
+                        {% else %}-{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <h3 style="font-size:1rem;">Agregar Moderador</h3>
+        <form method="POST" style="display: flex; gap: 10px;">
+            {% csrf_token %}
+            <input type="text" name="new_user" placeholder="Usuario" required>
+            <input type="password" name="new_pass" placeholder="Contraseña" required>
+            <button type="submit" name="new_admin" class="btn btn-blue">Crear</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <script>
+        // --- 1. ACTUALIZACIÓN AUTOMÁTICA ---
+        let allPlayersData = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        function updatePlayers() {
+            fetch("{% url 'api_datos_panel' %}")
+            .then(response => response.json())
+            .then(data => {
+                allPlayersData = data.jugadores;
+                renderTable();
+            })
+            .catch(error => console.error('Error actualizando:', error));
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('playersBody');
+            const totalItems = allPlayersData.length;
+            
+            tbody.innerHTML = ''; 
+
+            if (totalItems === 0) {
+                document.getElementById('noPlayersMsg').style.display = 'block';
+                document.getElementById('paginationControls').style.display = 'none';
+                return;
+            } 
+            document.getElementById('noPlayersMsg').style.display = 'none';
+
+            // Paginación
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+            const start = (currentPage - 1) * rowsPerPage;
+            const paginatedItems = allPlayersData.slice(start, start + rowsPerPage);
+
+            paginatedItems.forEach(j => {
+                let row = `<tr>
+                    <td><b>${j.nickname}</b></td>
+                    <td>${j.ultima}</td>
+                    <td><span class="badge" style="background-color: ${j.color};">${j.estado}</span></td>
+                    <td>${j.juego}</td>
+                    <td>${j.categoria}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+
+            if (totalItems > rowsPerPage) {
+                document.getElementById('paginationControls').style.display = 'flex';
+                document.getElementById('pageInfo').innerText = `${currentPage} / ${totalPages}`;
+                document.getElementById('btnPrev').disabled = (currentPage === 1);
+                document.getElementById('btnNext').disabled = (currentPage === totalPages);
+            } else {
+                document.getElementById('paginationControls').style.display = 'none';
+            }
+        }
+        function nextPage() { currentPage++; renderTable(); }
+        function prevPage() { currentPage--; renderTable(); }
+
+        setInterval(updatePlayers, 3000); // 3 seg
+        updatePlayers(); // Init
+
+        // --- 2. LOGICA CREAR CATEGORIAS ---
+        let currentWords = [];
+
+        function addWord() {
+            let m = document.getElementById('wMain').value;
+            let r1 = document.getElementById('wRel1').value;
+            let r2 = document.getElementById('wRel2').value;
+            if(!m || !r1 || !r2) return alert("Llena las 3 palabras.");
+            currentWords.push({principal: m, rel1: r1, rel2: r2});
+            renderTempTable();
+            document.getElementById('wMain').value = '';
+            document.getElementById('wRel1').value = '';
+            document.getElementById('wRel2').value = '';
+            document.getElementById('wMain').focus();
+        }
+
+        function renderTempTable() {
+            let html = '';
+            currentWords.forEach((w, i) => {
+                html += `<tr><td>${w.principal}</td><td>${w.rel1}</td><td>${w.rel2}</td>
+                <td><button onclick="currentWords.splice(${i},1); renderTempTable()" style="color:red; border:none; background:none; cursor:pointer;">X</button></td></tr>`;
+            });
+            document.getElementById('tempBody').innerHTML = html;
+        }
+
+        function saveCategory() {
+            let name = document.getElementById('catName').value;
+            let isPublic = document.getElementById('catPublic').checked;
+            if(!name) return alert("Falta nombre categoría");
+            if(currentWords.length === 0) return alert("Agrega palabras");
+
+            let fd = new FormData();
+            fd.append('nombre_categoria', name);
+            fd.append('lista_palabras', JSON.stringify(currentWords));
+            fd.append('es_publica', isPublic);
+            
+            fetch("{% url 'api_crear_categoria' %}", {
+                method: 'POST', body: fd, headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            }).then(r => r.json()).then(data => {
+                if(data.status === 'ok') {
+                    alert("Guardado!");
+                    currentWords = [];
+                    document.getElementById('catName').value = '';
+                    renderTempTable();
+                    loadCategories();
+                } else alert("Error: " + data.msg);
+            });
+        }
+
+        function loadCategories() {
+            fetch("{% url 'api_listar_categorias' %}")
+            .then(r => r.json())
+            .then(data => {
+                let html = '';
+                data.categorias.forEach(c => {
+                    html += `<tr><td>${c.nombre}</td><td>${c.total} packs</td><td>${c.publica ? 'Sí' : 'No'}</td>
+                    <td><button onclick="deleteCat(${c.id})" class="btn-danger">Borrar</button></td></tr>`;
+                });
+                document.getElementById('catBody').innerHTML = html;
+            });
+        }
+
+        function deleteCat(id) {
+            if(!confirm("¿Borrar?")) return;
+            let fd = new FormData(); fd.append('id', id);
+            fetch("{% url 'api_eliminar_categoria' %}", {
+                method: 'POST', body: fd, headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            }).then(() => loadCategories());
+        }
+
+        // Mensajes
+        document.querySelectorAll('.msg').forEach(msg => {
+            setTimeout(() => { msg.style.opacity = '0'; setTimeout(() => msg.remove(), 1000); }, 4000);
+        });
+
+        loadCategories(); // Init
+    </script>
+</body>
+</html>

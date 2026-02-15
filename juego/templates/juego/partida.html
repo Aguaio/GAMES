@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>En Partida</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0; height: 100vh; overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background: black; color: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* TARJETAS DE ESTADO */
+        .game-card {
+            width: 90%; max-width: 400px; height: 80vh;
+            background: #1e272e; border-radius: 20px;
+            display: none; /* OCULTO POR DEFECTO */
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); border: 1px solid #333;
+            position: absolute; /* Para que no ocupen espacio si están ocultas */
+        }
+        
+        .game-card.active { display: flex; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* TEXTOS */
+        h1 { font-size: 2.5rem; margin-bottom: 10px; color: #fff; text-transform: uppercase; }
+        h2 { color: #00d2ff; font-size: 1.8rem; margin: 20px 0; }
+        p { color: #aaa; font-size: 1.2rem; line-height: 1.6; }
+        
+        .big-icon { font-size: 5rem; margin-bottom: 20px; color: #555; }
+        .role-text { font-size: 3rem; font-weight: bold; margin: 20px 0; text-shadow: 0 0 20px currentColor; }
+        .word-text { font-size: 2rem; color: white; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 10px; }
+
+        /* BOTONES */
+        .btn-action {
+            background: #00d2ff; color: #000; padding: 20px 40px; border-radius: 50px;
+            font-size: 1.5rem; font-weight: bold; border: none; cursor: pointer;
+            margin-top: 30px; width: 80%; box-shadow: 0 5px 20px rgba(0, 210, 255, 0.4);
+            transition: 0.2s;
+        }
+        .btn-action:active { transform: scale(0.95); }
+        .btn-reveal { background: #2ecc71; box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4); }
+
+        /* COLORES DE ROLES */
+        .impostor-theme { color: #e74c3c; }
+        .innocent-theme { color: #2ecc71; }
+        .decoy-theme { color: #f1c40f; }
+
+        /* TIMER CIRCULAR */
+        .timer-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 5px solid #333; display: flex; justify-content: center; align-items: center;
+            font-size: 3rem; font-weight: bold; margin: 20px auto;
+        }
+
+        /* MODAL DE VOTACIÓN */
+        .rating-stars { display: flex; gap: 10px; font-size: 2rem; margin: 20px 0; justify-content: center; }
+        .star { color: #555; cursor: pointer; transition: 0.2s; }
+        .star.hover, .star.active { color: gold; text-shadow: 0 0 10px gold; }
+    </style>
+</head>
+<body>
+
+    <script>
+        const PLAYERS = [
+            {% for j in jugadores %}
+            {
+                nombre: "{{ j.nombre }}",
+                es_impostor: {{ j.es_impostor|yesno:"true,false" }},
+                es_senuelo: {{ j.es_senuelo|yesno:"true,false" }},
+                palabra: "{{ j.palabra_asignada }}",
+                color: "{% if j.es_impostor %}#e74c3c{% elif j.es_senuelo %}#f1c40f{% else %}#2ecc71{% endif %}"
+            },
+            {% endfor %}
+        ];
+        const REVEAL_TIME = {{ tiempo_revelacion }};
+        const SENUELO_SABE = {{ partida.senuelo_sabe_rol|yesno:"true,false" }};
+        const CAT_ID = {{ partida.categoria_actual.id }};
+    </script>
+
+    <div id="cardPass" class="game-card"> <div class="big-icon"><i class="fas fa-mobile-alt"></i></div>
+        <p>PÁSALE EL DISPOSITIVO A:</p>
+        <h1 id="passName">...</h1>
+        <p style="font-size: 0.9rem; color: #666;">(Nadie más debe mirar la pantalla)</p>
+        <button class="btn-action" onclick="showReveal()">SOY YO</button>
+    </div>
+
+    <div id="cardReveal" class="game-card">
+        <div class="big-icon" id="roleIcon"><i class="fas fa-user-secret"></i></div>
+        <div id="roleContent">
+            <p>TU ERES:</p>
+            <div id="roleTitle" class="role-text">ROL</div>
+            <p style="margin-top:20px;">PALABRA SECRETA:</p>
+            <div id="roleWord" class="word-text">PALABRA</div>
+        </div>
+        <div class="timer-circle" id="timerDisplay">5</div>
+    </div>
+
+    <div id="cardGameOn" class="game-card">
+        <div class="big-icon" style="color: #00d2ff;"><i class="fas fa-comments"></i></div>
+        <h1 style="color: #00d2ff;">¡A DEBATIR!</h1>
+        <p>Todos han visto sus roles.</p>
+        
+        <div style="margin: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+            <p>Categoría:</p>
+            <h2 style="margin: 5px 0;">{{ partida.categoria_actual.nombre }}</h2>
+        </div>
+
+        <button onclick="openRating()" class="btn-action btn-reveal" style="font-size: 1.2rem;">
+            TERMINAR PARTIDA
+        </button>
+    </div>
+
+    <div id="cardRating" class="game-card">
+        <h2 style="color:gold;">Partida Finalizada</h2>
+        <p>¿Qué te pareció la categoría<br><b style="color:white;">{{ partida.categoria_actual.nombre }}</b>?</p>
+        
+        <div class="rating-stars" id="starsContainer">
+            <i class="fas fa-star star" data-val="1" onclick="vote(1)"></i>
+            <i class="fas fa-star star" data-val="2" onclick="vote(2)"></i>
+            <i class="fas fa-star star" data-val="3" onclick="vote(3)"></i>
+            <i class="fas fa-star star" data-val="4" onclick="vote(4)"></i>
+            <i class="fas fa-star star" data-val="5" onclick="vote(5)"></i>
+        </div>
+
+        <button onclick="submitAndExit()" class="btn-action">SALIR AL MENÚ</button>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        let timerInterval;
+        let selectedVote = 0;
+
+        // --- FUNCIONES DE VISIBILIDAD (Arregla bug de superposición) ---
+        function showCard(cardId) {
+            // Ocultar TODAS primero
+            document.querySelectorAll('.game-card').forEach(el => el.classList.remove('active'));
+            // Mostrar la deseada
+            document.getElementById(cardId).classList.add('active');
+        }
+
+        // --- LÓGICA DEL JUEGO ---
+        function updatePassCard() {
+            if (currentIndex >= PLAYERS.length) {
+                showCard('cardGameOn'); // Fin de la ronda
+                return;
+            }
+            document.getElementById('passName').innerText = PLAYERS[currentIndex].nombre;
+            showCard('cardPass');
+        }
+
+        function showReveal() {
+            let p = PLAYERS[currentIndex];
+            let roleTitle = "INOCENTE";
+            let roleClass = "innocent-theme";
+            let icon = "fa-user";
+
+            if (p.es_impostor) {
+                roleTitle = "IMPOSTOR";
+                roleClass = "impostor-theme";
+                icon = "fa-user-secret";
+            } else if (p.es_senuelo) {
+                if (SENUELO_SABE) {
+                    roleTitle = "SEÑUELO";
+                    roleClass = "decoy-theme";
+                    icon = "fa-mask";
+                } else {
+                    roleTitle = "INOCENTE"; // Miente
+                    roleClass = "innocent-theme";
+                    icon = "fa-user";
+                }
+            }
+
+            let titleEl = document.getElementById('roleTitle');
+            titleEl.innerText = roleTitle;
+            titleEl.className = "role-text " + roleClass;
+            document.getElementById('roleIcon').innerHTML = `<i class="fas ${icon}" style="color: ${p.color}"></i>`;
+            
+            if (p.es_impostor && !p.palabra) {
+                document.getElementById('roleWord').innerText = "NO TIENES PALABRA";
+                document.getElementById('roleWord').style.color = "#e74c3c";
+            } else {
+                document.getElementById('roleWord').innerText = p.palabra;
+                document.getElementById('roleWord').style.color = "white";
+            }
+
+            showCard('cardReveal');
+            startTimer();
+        }
+
+        function startTimer() {
+            let timeLeft = REVEAL_TIME;
+            document.getElementById('timerDisplay').innerText = timeLeft;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').innerText = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishTurn();
+                }
+            }, 1000);
+        }
+
+        function finishTurn() {
+            currentIndex++;
+            updatePassCard();
+        }
+
+        // --- SISTEMA DE VOTACIÓN ---
+        function openRating() {
+            showCard('cardRating');
+        }
+
+        function vote(val) {
+            selectedVote = val;
+            document.querySelectorAll('.star').forEach(s => {
+                let sVal = parseInt(s.getAttribute('data-val'));
+                if(sVal <= val) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        function submitAndExit() {
+            if(selectedVote > 0) {
+                // Enviar voto por AJAX
+                let fd = new FormData();
+                fd.append('categoria_id', CAT_ID);
+                fd.append('puntos', selectedVote);
+
+                fetch("{% url 'api_votar_categoria' %}", {
+                    method: 'POST',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    body: fd
+                }); // No esperamos respuesta, nos vamos igual
+            }
+            window.location.href = "{% url 'sala_espera' %}";
+        }
+
+        // Iniciar el juego correctamente
+        updatePassCard();
+        
+        // Ping
+        setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000);
+    </script>
+</body>
+</html>

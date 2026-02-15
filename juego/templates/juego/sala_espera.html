@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurar Partida</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            margin: 0; min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e272e, #000000);
+            color: white; display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+        .main-container {
+            display: flex; gap: 20px; width: 100%; max-width: 1000px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+        .col-config { flex: 3; padding: 30px; border-right: 1px solid rgba(255,255,255,0.1); }
+        .col-info { flex: 2; padding: 30px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; justify-content: center; }
+
+        h2 { color: #00d2ff; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
+        label { display: block; margin-bottom: 5px; color: #ccc; font-weight: bold; }
+        
+        .input-group { margin-bottom: 20px; }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #444;
+            color: white; border-radius: 8px; font-size: 1rem; outline: none; box-sizing: border-box;
+        }
+        input:focus { border-color: #00d2ff; }
+
+        .player-list { max-height: 200px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #333; border-radius: 5px; padding: 5px; }
+        .player-item {
+            display: flex; justify-content: space-between; background: rgba(255,255,255,0.1);
+            padding: 8px 15px; border-radius: 5px; margin-bottom: 5px; align-items: center;
+        }
+        .btn-add { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-del { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 1.1rem; }
+        .btn-clear-all { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.9rem; margin-left: 10px; }
+        .btn-clear-all:hover { text-decoration: underline; }
+
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .cat-card {
+            background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 8px;
+            padding: 10px; cursor: pointer; transition: 0.2s; text-align: center;
+        }
+        .cat-card:hover { background: rgba(255,255,255,0.1); }
+        .cat-card.selected { background: rgba(0, 210, 255, 0.2); border-color: #00d2ff; box-shadow: 0 0 10px rgba(0, 210, 255, 0.2); }
+        .cat-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
+        .cat-stars { font-size: 0.8rem; color: #aaa; }
+
+        .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.3s; cursor: pointer; }
+        .option-row:hover { background: rgba(255,255,255,0.1); }
+        input[type="checkbox"] { transform: scale(1.5); accent-color: #e74c3c; cursor: pointer;}
+
+        .info-box { border: 2px solid #00d2ff; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); transition: all 0.3s ease; }
+        .info-title { color: #00d2ff; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; }
+        .info-text { color: #aaa; line-height: 1.5; }
+
+        .btn-start {
+            background: linear-gradient(45deg, #c0392b, #e74c3c); width: 100%; padding: 15px;
+            border: none; border-radius: 10px; color: white; font-size: 1.5rem; font-weight: bold;
+            cursor: pointer; margin-top: 20px; transition: 0.3s; text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        .btn-start:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a2e; padding: 30px; border-radius: 15px; width: 300px; border: 2px solid #e74c3c; text-align: center; box-shadow: 0 0 30px rgba(231, 76, 60, 0.3); animation: popIn 0.3s ease; }
+        @keyframes popIn { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+        @media (max-width: 768px) { .main-container { flex-direction: column; } }
+        
+        .btn-create-cat { font-size: 0.8rem; background: none; border: 1px solid #00d2ff; color: #00d2ff; padding: 2px 8px; border-radius: 10px; cursor: pointer; margin-left: 10px; text-decoration: none; }
+        .btn-create-cat:hover { background: #00d2ff; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color: #e74c3c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Atención</h2>
+            <p id="alertMessage" style="color: #ddd; font-size: 1.1rem; margin: 20px 0;">Error</p>
+            <button class="btn-start" onclick="closeAlertModal()" style="width: auto; padding: 10px 30px; font-size: 1rem; margin-top: 0;">Entendido</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="col-config">
+            <a href="{% url 'menu_juegos' %}" style="color: #aaa; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-arrow-left"></i> Volver al Menú</a>
+            <h2 style="margin-top: 10px;">Configuración de Partida</h2>
+            
+            <div class="input-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label><i class="fas fa-users"></i> Jugadores</label>
+                    <button class="btn-clear-all" onclick="clearAllPlayers()" title="Borrar lista"><i class="fas fa-trash"></i> Limpiar</button>
+                </div>
+                
+                <div class="player-list" id="playerListContainer"></div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="newPlayerName" placeholder="Nombre del jugador..." onkeypress="handleEnter(event)">
+                    <button class="btn-add" onclick="addPlayer()"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+
+            <div class="input-group" onmouseenter="showInfo('category')" onmouseleave="resetInfo()">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <label><i class="fas fa-list"></i> Categoría</label>
+                    <a href="{% url 'crear_categoria_usuario' %}" class="btn-create-cat"><i class="fas fa-plus"></i> Crear</a>
+                </div>
+                
+                <input type="hidden" id="categorySelect" value="">
+                <div class="cat-grid" id="catGrid">
+                    {% for cat in categorias %}
+                    <div class="cat-card" onclick="selectCategory(this, '{{ cat.id }}')">
+                        <div class="cat-name">{{ cat.nombre }}</div>
+                        <div class="cat-stars"><i class="fas fa-star" style="color: gold;"></i> {{ cat.ranking }}</div>
+                    </div>
+                    {% empty %}
+                    <div style="color: #888; grid-column: span 2; text-align: center;">No hay categorías. <br>¡Crea una nueva!</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="display:flex; gap: 20px;">
+                <div class="input-group" style="flex:1;">
+                    <label>Impostores</label>
+                    <input type="number" id="impostorCount" value="1" min="1" max="3" style="text-align:center;">
+                </div>
+            </div>
+
+            <label style="margin-top:20px; border-bottom:1px solid #444; padding-bottom:5px;">Opciones Avanzadas</label>
+            <div class="option-row" onmouseenter="showInfo('senuelo')" onmouseleave="resetInfo()">
+                <input type="checkbox" id="checkSenuelo" onchange="toggleSenueloSub()"> <span>Usar Señuelo</span>
+            </div>
+            <div class="option-row" id="rowSenueloSabe" style="margin-left: 30px; display:none;" onmouseenter="showInfo('senuelo_sabe')" onmouseleave="resetInfo()">
+                <input type="checkbox" id="checkSenueloSabe" checked> <span>Señuelo sabe su rol</span>
+            </div>
+            <div class="option-row" onmouseenter="showInfo('dificil')" onmouseleave="resetInfo()">
+                <input type="checkbox" id="checkDificil"> <span>Modo Difícil (Impostor informado)</span>
+            </div>
+            <div class="option-row" onmouseenter="showInfo('hermanos')" onmouseleave="resetInfo()">
+                <input type="checkbox" id="checkHermanos" checked> <span>Hermanos Impostores</span>
+            </div>
+            <div class="option-row" onmouseenter="showInfo('compulsivo')" onmouseleave="resetInfo()">
+                <input type="checkbox" id="checkCompulsivo"> <span>Impostor Compulsivo</span>
+            </div>
+
+            <button class="btn-start" onclick="startGame()">INICIAR PARTIDA 🚀</button>
+        </div>
+
+        <div class="col-info">
+            <div class="info-box" id="infoBox">
+                <div class="info-title" id="infoTitle">INFORMACIÓN</div>
+                <div class="info-text" id="infoText">
+                    Pasa el mouse sobre las opciones para ver qué hace cada una.<br><br>Agrega jugadores y configura tu partida para comenzar.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showCustomAlert(msg) { document.getElementById('alertMessage').innerText = msg; document.getElementById('alertModal').style.display = 'flex'; }
+        function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
+        
+        // --- MEMORIA DE JUGADORES ---
+        let players = JSON.parse(localStorage.getItem('my_players')) || [];
+
+        function savePlayersToMemory() {
+            localStorage.setItem('my_players', JSON.stringify(players));
+        }
+
+        function addPlayer() {
+            let input = document.getElementById('newPlayerName');
+            let name = input.value.trim();
+            if(name && !players.includes(name)) { 
+                players.push(name); 
+                savePlayersToMemory(); // Guardar
+                renderPlayers(); 
+                input.value = ''; 
+                input.focus(); 
+            }
+        }
+
+        function removePlayer(index) { 
+            players.splice(index, 1); 
+            savePlayersToMemory(); // Guardar
+            renderPlayers(); 
+        }
+
+        function clearAllPlayers() {
+            if(confirm('¿Borrar toda la lista de jugadores?')) {
+                players = [];
+                savePlayersToMemory();
+                renderPlayers();
+            }
+        }
+
+        function renderPlayers() {
+            let container = document.getElementById('playerListContainer');
+            let html = '';
+            if(players.length === 0) html = '<div style="color:#777; padding:10px; text-align:center;">Agrega jugadores...</div>';
+            players.forEach((p, i) => { html += `<div class="player-item"><span>${i+1}. ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
+            container.innerHTML = html;
+        }
+        
+        // Renderizar al inicio
+        renderPlayers();
+
+        function handleEnter(e) { if(e.key === 'Enter') addPlayer(); }
+        function selectCategory(element, id) { document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected')); element.classList.add('selected'); document.getElementById('categorySelect').value = id; }
+        
+        const descriptions = {
+            'default': {t: 'INFORMACIÓN', d: 'Pasa el mouse sobre las opciones para ver qué hace cada una.'},
+            'category': {t: 'CATEGORÍA', d: 'El tema sobre el cual tratará la palabra secreta (Ej: Comida, Países).'},
+            'senuelo': {t: 'SEÑUELO', d: 'Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse.'},
+            'senuelo_sabe': {t: 'SEÑUELO CONSCIENTE', d: 'Si activas esto, el Señuelo verá "ERES SEÑUELO". Si no, verá "ERES INOCENTE" (creyendo que tiene la palabra real).'},
+            'dificil': {t: 'MODO DIFÍCIL', d: 'El Impostor recibirá una palabra relacionada en lugar de nada, haciendo más difícil detectarlo.'},
+            'hermanos': {t: 'HERMANOS IMPOSTORES', d: 'Si hay más de 1 impostor, compartirán la misma palabra falsa (o ausencia de ella).'},
+            'compulsivo': {t: 'IMPOSTOR COMPULSIVO', d: 'Permite que un jugador repita el rol de Impostor en la siguiente partida (genera paranoia).'}
+        };
+        function showInfo(key) { document.getElementById('infoTitle').innerText = descriptions[key].t; document.getElementById('infoText').innerText = descriptions[key].d; }
+        function resetInfo() { showInfo('default'); }
+        function toggleSenueloSub() { let main = document.getElementById('checkSenuelo').checked; document.getElementById('rowSenueloSabe').style.display = main ? 'flex' : 'none'; }
+        setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000); 
+
+        function startGame() {
+            if(players.length < 3) { showCustomAlert("Mínimo 3 jugadores para iniciar."); return; }
+            let catId = document.getElementById('categorySelect').value;
+            if(!catId) { showCustomAlert("Por favor, selecciona una categoría."); return; }
+            let config = {
+                categoria_id: catId,
+                cant_impostores: document.getElementById('impostorCount').value,
+                usar_senuelo: document.getElementById('checkSenuelo').checked,
+                senuelo_sabe: document.getElementById('checkSenueloSabe').checked,
+                modo_dificil: document.getElementById('checkDificil').checked,
+                hermanos: document.getElementById('checkHermanos').checked,
+                compulsivo: document.getElementById('checkCompulsivo').checked
+            };
+            fetch("{% url 'iniciar_partida' %}", {
+                method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify({ jugadores: players, config: config })
+            }).then(r => r.json()).then(data => {
+                if(data.status === 'ok') { window.location.href = data.redirect; } else { showCustomAlert("Error: " + data.msg); }
+            });
+        }
+    </script>
+</body>
+</html>
