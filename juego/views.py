@@ -50,13 +50,16 @@ def inicio(request):
     return render(request, 'juego/inicio.html')
 
 def menu_juegos(request):
-    # MENÚ INTERMEDIO (Para futuros juegos)
+    # MENÚ INTERMEDIO
     nick = request.session.get('gm_nick')
     if not nick: return redirect('inicio')
     
-    # Actualizar actividad (Ping)
+    # Actualizar actividad y Estado
     try: 
-        SesionGameMaster.objects.get(nickname=nick).save()
+        jugador = SesionGameMaster.objects.get(nickname=nick)
+        jugador.juego_actual = "En Menú"      # <--- Lo que verá el admin
+        jugador.estado = "Conectado"
+        jugador.save()
     except SesionGameMaster.DoesNotExist: 
         return redirect('inicio')
 
@@ -67,14 +70,18 @@ def sala_espera(request):
     nick = request.session.get('gm_nick')
     if not nick: return redirect('inicio')
     
-    # Actualizar actividad
+    # Actualizar actividad y Estado
     try: 
-        SesionGameMaster.objects.get(nickname=nick).save()
+        jugador = SesionGameMaster.objects.get(nickname=nick)
+        jugador.juego_actual = "El Impostor"  # <--- Lo que verá el admin
+        jugador.estado = "Configurando"
+        jugador.save()
     except SesionGameMaster.DoesNotExist: 
         return redirect('inicio')
 
+    # Filtramos categorías públicas o creadas por admin
     categorias = Categoria.objects.filter(es_publica=True) | Categoria.objects.filter(creada_por_admin=True)
-    categorias = categorias.distinct()
+    categorias = categorias.distinct().order_by('-ranking')
 
     return render(request, 'juego/sala_espera.html', {
         'nick': nick,
