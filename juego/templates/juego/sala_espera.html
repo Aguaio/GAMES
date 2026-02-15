@@ -75,6 +75,33 @@
         
         .btn-create-cat { font-size: 0.8rem; background: none; border: 1px solid #00d2ff; color: #00d2ff; padding: 2px 8px; border-radius: 10px; cursor: pointer; margin-left: 10px; text-decoration: none; }
         .btn-create-cat:hover { background: #00d2ff; color: #000; }
+
+        /* --- AJUSTE MOVIL: SALA DE ESPERA --- */
+        @media (max-width: 768px) {
+            body { align-items: flex-start; padding: 10px; overflow-y: auto; } /* Permitir scroll */
+            .main-container { 
+                flex-direction: column; /* Apilar verticalmente */
+                width: 100%; 
+                margin-bottom: 20px;
+                max-height: none; /* Quitar límite de altura */
+            }
+            .col-config { 
+                padding: 20px; 
+                border-right: none; 
+                width: 100%; 
+                box-sizing: border-box; /* Evitar desbordes */
+            }
+            /* Ocultamos la caja de información en celular porque ocupa mucho espacio */
+            .col-info { display: none; } 
+            
+            /* Ajustar inputs y botones */
+            input[type="text"], input[type="number"] { font-size: 0.9rem; padding: 10px; }
+            .btn-start { font-size: 1.2rem; padding: 12px; }
+            
+            /* Grid de categorías en 1 sola columna si es muy estrecho */
+            .cat-grid { grid-template-columns: 1fr; }
+        }
+        
     </style>
 </head>
 <body>
@@ -248,4 +275,5 @@
         }
     </script>
 </body>
+
 </html>
