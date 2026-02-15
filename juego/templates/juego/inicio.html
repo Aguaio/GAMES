@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* --- FONDO ANIMADO (Mantenemos tu efecto Warp Speed) --- */
+        /* --- FONDO ANIMADO --- */
         body {
             margin: 0; height: 100vh; overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -31,7 +31,7 @@
         .login-box {
             z-index: 10;
             background: rgba(255, 255, 255, 0.03);
-            padding: 50px 40px;
+            padding: 40px 30px; /* Padding ajustado */
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -39,6 +39,7 @@
             text-align: center;
             width: 90%;
             max-width: 400px;
+            box-sizing: border-box; /* IMPORTANTE PARA QUE NO SE SALGA */
             transition: transform 0.3s;
         }
         .login-box:hover {
@@ -46,9 +47,9 @@
             box-shadow: 0 0 60px rgba(0, 210, 255, 0.1);
         }
 
-        /* --- TÍTULO POSTBLON (EFECTO GLITCH) --- */
+        /* --- TÍTULO POSTBLON (GLITCH) --- */
         .glitch-wrapper {
-            display: flex; justify-content: center; align-items: center; margin-bottom: 30px;
+            display: flex; justify-content: center; align-items: center; margin-bottom: 20px;
         }
         .glitch {
             font-size: 3.5rem;
@@ -59,49 +60,29 @@
             letter-spacing: 5px;
             text-shadow: 2px 2px 0px #00d2ff, -2px -2px 0px #ff0055;
         }
-
-        /* Capas del efecto glitch */
+        
+        /* Capas Glitch */
         .glitch::before, .glitch::after {
-            content: attr(data-text);
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #1a0b2e; /* Color de fondo para ocultar cortes */
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1a0b2e;
         }
-        /* Capa Cyan */
         .glitch::before {
-            left: 2px; text-shadow: -2px 0 #00d2ff;
-            clip: rect(24px, 550px, 90px, 0);
-            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+            left: 2px; text-shadow: -2px 0 #00d2ff; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim-2 3s infinite linear alternate-reverse;
         }
-        /* Capa Magenta */
         .glitch::after {
-            left: -2px; text-shadow: -2px 0 #ff0055;
-            clip: rect(85px, 550px, 140px, 0);
-            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+            left: -2px; text-shadow: -2px 0 #ff0055; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2.5s infinite linear alternate-reverse;
         }
-
-        @keyframes glitch-anim {
-            0% { clip: rect(12px, 9999px, 32px, 0); }
-            20% { clip: rect(84px, 9999px, 100px, 0); }
-            40% { clip: rect(12px, 9999px, 60px, 0); }
-            60% { clip: rect(62px, 9999px, 20px, 0); }
-            80% { clip: rect(2px, 9999px, 80px, 0); }
-            100% { clip: rect(44px, 9999px, 94px, 0); }
-        }
-        @keyframes glitch-anim-2 {
-            0% { clip: rect(62px, 9999px, 10px, 0); }
-            20% { clip: rect(12px, 9999px, 52px, 0); }
-            40% { clip: rect(84px, 9999px, 32px, 0); }
-            60% { clip: rect(22px, 9999px, 90px, 0); }
-            80% { clip: rect(4px, 9999px, 70px, 0); }
-            100% { clip: rect(54px, 9999px, 24px, 0); }
-        }
+        @keyframes glitch-anim { 0% { clip: rect(12px, 9999px, 32px, 0); } 100% { clip: rect(44px, 9999px, 94px, 0); } }
+        @keyframes glitch-anim-2 { 0% { clip: rect(62px, 9999px, 10px, 0); } 100% { clip: rect(54px, 9999px, 24px, 0); } }
 
         /* --- FORMULARIO --- */
         input[type="text"] {
-            width: 100%; padding: 15px; margin-bottom: 20px;
+            width: 100%; 
+            padding: 15px; 
+            margin-bottom: 20px;
             border: none; border-bottom: 2px solid #555; border-radius: 0;
             background: transparent; color: white;
             font-size: 1.2rem; text-align: center; outline: none; transition: 0.3s;
+            box-sizing: border-box; /* CLAVE PARA QUE NO SE DESBORDE */
         }
         input[type="text"]:focus {
             border-bottom-color: #00d2ff;
@@ -118,49 +99,48 @@
             transition: 0.3s; box-shadow: 0 5px 15px rgba(0, 85, 255, 0.3);
         }
         button.btn-enter:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.5);
+            transform: scale(1.05); box-shadow: 0 10px 25px rgba(0, 210, 255, 0.5);
         }
 
-        /* Botón Admin Discreto */
         .admin-trigger {
             position: absolute; top: 20px; right: 20px; z-index: 20;
-            color: rgba(255,255,255,0.3); cursor: pointer; font-size: 1.2rem; transition: 0.3s;
+            color: rgba(255,255,255,0.3); cursor: pointer; font-size: 1.2rem; padding: 10px; /* Más área de toque */
         }
-        .admin-trigger:hover { color: #e74c3c; transform: rotate(90deg); }
 
-        /* MODAL ADMIN */
+        /* --- MODAL ADMIN MEJORADO --- */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 100;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 100;
             justify-content: center; align-items: center;
         }
         .modal-overlay.active { display: flex; }
+        
         .modal-content {
-            background: #1a1a2e; padding: 30px; border-radius: 15px;
-            border: 1px solid #333; text-align: center; width: 300px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5); position: relative;
+            background: #151525; padding: 30px; border-radius: 15px;
+            border: 1px solid #333; text-align: center; 
+            width: 90%; max-width: 350px; /* Flexible en móvil */
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); position: relative;
         }
-        .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; color: #aaa; }
+        .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; color: #aaa; font-size: 1.5rem; padding: 5px;}
         
-        .alert { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #e74c3c; }
-        
-        /* Inputs del modal admin (estilo clásico) */
+        /* Inputs del modal admin (estilo clásico pero legible) */
         .modal-content input {
-            border: 1px solid #444; background: rgba(0,0,0,0.3); border-radius: 5px;
+            border: 1px solid #444; 
+            background: rgba(255,255,255,0.1); /* Fondo más claro para leer mejor */
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 15px;
         }
+        .modal-content h2 { font-size: 1.5rem; margin-bottom: 20px; }
 
-        /* --- AJUSTE MOVIL: INICIO --- */
+        .alert { background: rgba(231, 76, 60, 0.2); color: #ff6b6b; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #e74c3c; font-size: 0.9rem;}
+
+        /* AJUSTES EXTRA MÓVIL */
         @media (max-width: 600px) {
-            .glitch { font-size: 2.5rem; letter-spacing: 2px; } /* Texto más chico */
-            .login-box { 
-                padding: 30px 20px; 
-                width: 85%; 
-                margin-top: -50px; /* Subirlo un poco */
-            }
-            .admin-trigger { top: 10px; right: 10px; }
+            .glitch { font-size: 2.8rem; letter-spacing: 2px; }
+            .login-box { padding: 30px 20px; }
+            .modal-content { padding: 25px 20px; }
         }
-        
     </style>
 </head>
 <body>
@@ -195,7 +175,7 @@
                 {% csrf_token %}
                 <input type="text" name="username" placeholder="Usuario" required>
                 <input type="password" name="password" placeholder="Contraseña" required>
-                <button type="submit" class="btn-enter" style="border-radius: 5px;">ACCEDER</button>
+                <button type="submit" class="btn-enter" style="border-radius: 5px; font-size: 1rem; padding: 12px;">ACCEDER</button>
             </form>
         </div>
     </div>
@@ -203,52 +183,28 @@
     <div id="particles"></div>
 
     <script>
-        // --- TUS PARTÍCULAS (Mantenidas del código anterior) ---
         function createParticles() {
             const body = document.querySelector('#particles');
-            const count = 80; 
-        
+            const count = 60; 
             for(let i=0; i < count; i++){
                 let div = document.createElement('div');
                 div.className = 'particle';
                 div.style.left = Math.random() * 100 + 'vw';
-                
-                let sizeType = Math.random();
-                let size, opacity, duration;
-            
-                if (sizeType < 0.5) { 
-                    size = Math.random() * 1 + 1 + 'px';
-                    opacity = Math.random() * 0.3 + 0.2;
-                    duration = Math.random() * 20 + 15 + 's';
-                } else if (sizeType < 0.9) { 
-                    size = Math.random() * 1 + 2 + 'px';
-                    opacity = Math.random() * 0.3 + 0.5;
-                    duration = Math.random() * 10 + 8 + 's';
-                } else { 
-                    size = Math.random() * 2 + 3 + 'px';
-                    opacity = 1;
-                    duration = Math.random() * 4 + 4 + 's';
-                }
-            
-                div.style.width = size;
-                div.style.height = size;
-                div.style.setProperty('--star-opacity', opacity);
-                div.style.animationDuration = duration;
-                div.style.animationDelay = '-' + (Math.random() * 30) + 's';
-                
+                let size = Math.random() * 2 + 1 + 'px';
+                div.style.width = size; div.style.height = size;
+                div.style.setProperty('--star-opacity', Math.random());
+                div.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                div.style.animationDelay = '-' + (Math.random() * 10) + 's';
                 body.appendChild(div);
             }
         }
         createParticles();
 
-        // Lógica Modal Admin
         function openAdminModal() { document.getElementById('adminModal').classList.add('active'); }
         function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); }
-        // Cerrar al dar click fuera del modal
         document.getElementById('adminModal').addEventListener('click', function(e) {
             if (e.target === this) closeAdminModal();
         });
     </script>
 </body>
-
 </html>
