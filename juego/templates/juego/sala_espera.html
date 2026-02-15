@@ -22,7 +22,7 @@
         .col-config { flex: 3; padding: 30px; border-right: 1px solid rgba(255,255,255,0.1); }
         .col-info { flex: 2; padding: 30px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; justify-content: center; }
 
-        h2 { color: #00d2ff; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
+        h2 { color: #00d2ff; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
         label { display: block; margin-bottom: 5px; color: #ccc; font-weight: bold; }
         
         .input-group { margin-bottom: 20px; }
@@ -40,8 +40,7 @@
         .btn-add { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-del { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 1.1rem; }
         .btn-clear-all { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.9rem; margin-left: 10px; }
-        .btn-clear-all:hover { text-decoration: underline; }
-
+        
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
         .cat-card {
             background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 8px;
@@ -52,9 +51,12 @@
         .cat-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
         .cat-stars { font-size: 0.8rem; color: #aaa; }
 
-        .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.3s; cursor: pointer; }
+        .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.3s; cursor: pointer; position: relative;}
         .option-row:hover { background: rgba(255,255,255,0.1); }
         input[type="checkbox"] { transform: scale(1.5); accent-color: #e74c3c; cursor: pointer;}
+        
+        /* Icono de Ayuda (?) */
+        .help-icon { color: #00d2ff; margin-left: auto; font-size: 1.1rem; padding: 5px; }
 
         .info-box { border: 2px solid #00d2ff; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); transition: all 0.3s ease; }
         .info-title { color: #00d2ff; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; }
@@ -71,44 +73,23 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: #1a1a2e; padding: 30px; border-radius: 15px; width: 300px; border: 2px solid #e74c3c; text-align: center; box-shadow: 0 0 30px rgba(231, 76, 60, 0.3); animation: popIn 0.3s ease; }
         @keyframes popIn { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
-        @media (max-width: 768px) { .main-container { flex-direction: column; } }
         
         .btn-create-cat { font-size: 0.8rem; background: none; border: 1px solid #00d2ff; color: #00d2ff; padding: 2px 8px; border-radius: 10px; cursor: pointer; margin-left: 10px; text-decoration: none; }
-        .btn-create-cat:hover { background: #00d2ff; color: #000; }
-
-        /* --- AJUSTE MOVIL: SALA DE ESPERA --- */
+        
         @media (max-width: 768px) {
-            body { align-items: flex-start; padding: 10px; overflow-y: auto; } /* Permitir scroll */
-            .main-container { 
-                flex-direction: column; /* Apilar verticalmente */
-                width: 100%; 
-                margin-bottom: 20px;
-                max-height: none; /* Quitar límite de altura */
-            }
-            .col-config { 
-                padding: 20px; 
-                border-right: none; 
-                width: 100%; 
-                box-sizing: border-box; /* Evitar desbordes */
-            }
-            /* Ocultamos la caja de información en celular porque ocupa mucho espacio */
-            .col-info { display: none; } 
-            
-            /* Ajustar inputs y botones */
-            input[type="text"], input[type="number"] { font-size: 0.9rem; padding: 10px; }
-            .btn-start { font-size: 1.2rem; padding: 12px; }
-            
-            /* Grid de categorías en 1 sola columna si es muy estrecho */
+            body { align-items: flex-start; padding: 10px; overflow-y: auto; }
+            .main-container { flex-direction: column; width: 100%; margin-bottom: 20px; max-height: none; }
+            .col-config { padding: 20px; border-right: none; width: 100%; box-sizing: border-box; }
+            .col-info { display: none; } /* Ocultar panel info en móvil */
             .cat-grid { grid-template-columns: 1fr; }
         }
-        
     </style>
 </head>
 <body>
 
     <div id="alertModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 style="color: #e74c3c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Atención</h2>
+            <h2 id="alertTitle" style="color: #e74c3c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Atención</h2>
             <p id="alertMessage" style="color: #ddd; font-size: 1.1rem; margin: 20px 0;">Error</p>
             <button class="btn-start" onclick="closeAlertModal()" style="width: auto; padding: 10px 30px; font-size: 1rem; margin-top: 0;">Entendido</button>
         </div>
@@ -124,20 +105,18 @@
                     <label><i class="fas fa-users"></i> Jugadores</label>
                     <button class="btn-clear-all" onclick="clearAllPlayers()" title="Borrar lista"><i class="fas fa-trash"></i> Limpiar</button>
                 </div>
-                
                 <div class="player-list" id="playerListContainer"></div>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="newPlayerName" placeholder="Nombre del jugador..." onkeypress="handleEnter(event)">
+                    <input type="text" id="newPlayerName" placeholder="Nombre..." onkeypress="handleEnter(event)">
                     <button class="btn-add" onclick="addPlayer()"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
 
-            <div class="input-group" onmouseenter="showInfo('category')" onmouseleave="resetInfo()">
+            <div class="input-group">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <label><i class="fas fa-list"></i> Categoría</label>
                     <a href="{% url 'crear_categoria_usuario' %}" class="btn-create-cat"><i class="fas fa-plus"></i> Crear</a>
                 </div>
-                
                 <input type="hidden" id="categorySelect" value="">
                 <div class="cat-grid" id="catGrid">
                     {% for cat in categorias %}
@@ -159,20 +138,35 @@
             </div>
 
             <label style="margin-top:20px; border-bottom:1px solid #444; padding-bottom:5px;">Opciones Avanzadas</label>
+            
             <div class="option-row" onmouseenter="showInfo('senuelo')" onmouseleave="resetInfo()">
-                <input type="checkbox" id="checkSenuelo" onchange="toggleSenueloSub()"> <span>Usar Señuelo</span>
+                <input type="checkbox" id="checkSenuelo" onchange="toggleSenueloSub()"> 
+                <span>Usar Señuelo</span>
+                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'senuelo')"></i>
             </div>
+
             <div class="option-row" id="rowSenueloSabe" style="margin-left: 30px; display:none;" onmouseenter="showInfo('senuelo_sabe')" onmouseleave="resetInfo()">
-                <input type="checkbox" id="checkSenueloSabe" checked> <span>Señuelo sabe su rol</span>
+                <input type="checkbox" id="checkSenueloSabe" checked> 
+                <span>Señuelo sabe su rol</span>
+                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'senuelo_sabe')"></i>
             </div>
+
             <div class="option-row" onmouseenter="showInfo('dificil')" onmouseleave="resetInfo()">
-                <input type="checkbox" id="checkDificil"> <span>Modo Difícil (Impostor informado)</span>
+                <input type="checkbox" id="checkDificil"> 
+                <span>Modo Difícil</span>
+                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'dificil')"></i>
             </div>
+
             <div class="option-row" onmouseenter="showInfo('hermanos')" onmouseleave="resetInfo()">
-                <input type="checkbox" id="checkHermanos" checked> <span>Hermanos Impostores</span>
+                <input type="checkbox" id="checkHermanos" checked> 
+                <span>Hermanos Impostores</span>
+                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'hermanos')"></i>
             </div>
+
             <div class="option-row" onmouseenter="showInfo('compulsivo')" onmouseleave="resetInfo()">
-                <input type="checkbox" id="checkCompulsivo"> <span>Impostor Compulsivo</span>
+                <input type="checkbox" id="checkCompulsivo"> 
+                <span>Impostor Compulsivo</span>
+                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'compulsivo')"></i>
             </div>
 
             <button class="btn-start" onclick="startGame()">INICIAR PARTIDA 🚀</button>
@@ -189,42 +183,23 @@
     </div>
 
     <script>
-        function showCustomAlert(msg) { document.getElementById('alertMessage').innerText = msg; document.getElementById('alertModal').style.display = 'flex'; }
+        // Función alerta mejorada
+        function showCustomAlert(msg, title="Atención") { 
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = msg; 
+            document.getElementById('alertModal').style.display = 'flex'; 
+        }
         function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
         
-        // --- MEMORIA DE JUGADORES ---
         let players = JSON.parse(localStorage.getItem('my_players')) || [];
-
-        function savePlayersToMemory() {
-            localStorage.setItem('my_players', JSON.stringify(players));
-        }
-
+        function savePlayersToMemory() { localStorage.setItem('my_players', JSON.stringify(players)); }
         function addPlayer() {
             let input = document.getElementById('newPlayerName');
             let name = input.value.trim();
-            if(name && !players.includes(name)) { 
-                players.push(name); 
-                savePlayersToMemory(); // Guardar
-                renderPlayers(); 
-                input.value = ''; 
-                input.focus(); 
-            }
+            if(name && !players.includes(name)) { players.push(name); savePlayersToMemory(); renderPlayers(); input.value = ''; input.focus(); }
         }
-
-        function removePlayer(index) { 
-            players.splice(index, 1); 
-            savePlayersToMemory(); // Guardar
-            renderPlayers(); 
-        }
-
-        function clearAllPlayers() {
-            if(confirm('¿Borrar toda la lista de jugadores?')) {
-                players = [];
-                savePlayersToMemory();
-                renderPlayers();
-            }
-        }
-
+        function removePlayer(index) { players.splice(index, 1); savePlayersToMemory(); renderPlayers(); }
+        function clearAllPlayers() { if(confirm('¿Borrar lista?')) { players = []; savePlayersToMemory(); renderPlayers(); } }
         function renderPlayers() {
             let container = document.getElementById('playerListContainer');
             let html = '';
@@ -232,8 +207,6 @@
             players.forEach((p, i) => { html += `<div class="player-item"><span>${i+1}. ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
             container.innerHTML = html;
         }
-        
-        // Renderizar al inicio
         renderPlayers();
 
         function handleEnter(e) { if(e.key === 'Enter') addPlayer(); }
@@ -248,8 +221,18 @@
             'hermanos': {t: 'HERMANOS IMPOSTORES', d: 'Si hay más de 1 impostor, compartirán la misma palabra falsa (o ausencia de ella).'},
             'compulsivo': {t: 'IMPOSTOR COMPULSIVO', d: 'Permite que un jugador repita el rol de Impostor en la siguiente partida (genera paranoia).'}
         };
+        
+        // Función Desktop (Hover)
         function showInfo(key) { document.getElementById('infoTitle').innerText = descriptions[key].t; document.getElementById('infoText').innerText = descriptions[key].d; }
         function resetInfo() { showInfo('default'); }
+        
+        // Función Móvil (Click en icono ?)
+        function showMobileInfo(e, key) {
+            e.stopPropagation(); // Evita que se marque el checkbox al dar clic en la interrogación
+            let info = descriptions[key];
+            showCustomAlert(info.d, info.t); // Reutilizamos el modal de alerta pero con el texto de info
+        }
+
         function toggleSenueloSub() { let main = document.getElementById('checkSenuelo').checked; document.getElementById('rowSenueloSabe').style.display = main ? 'flex' : 'none'; }
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000); 
 
@@ -275,5 +258,4 @@
         }
     </script>
 </body>
-
 </html>
