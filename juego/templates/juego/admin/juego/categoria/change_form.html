@@ -1,0 +1,81 @@
+{% extends "admin/change_form.html" %}
+
+{% block after_field_sets %}
+    <style>
+        .ai-admin-box {
+            background: rgba(30, 0, 50, 0.9); border: 2px solid #8e44ad;
+            border-radius: 10px; padding: 20px; margin: 20px 0; color: white;
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.3);
+        }
+        .ai-btn-copy {
+            background: #8e44ad; color: white; padding: 10px; border: none; border-radius: 5px;
+            cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px;
+        }
+        .ai-btn-process {
+            background: #2c3e50; border: 1px solid #8e44ad; color: #d2b4de;
+            padding: 8px; width: 100%; cursor: pointer; font-weight: bold;
+        }
+        .ai-btn-process:hover { background: #8e44ad; color: white; }
+    </style>
+
+    <div class="ai-admin-box">
+        <h3 style="margin-top:0; color:#d2b4de;">🤖 Importar desde IA (Admin)</h3>
+        
+        <button type="button" class="ai-btn-copy" onclick="copyPromptAdmin()">
+            📄 1. Copiar Prompt
+        </button>
+        
+        <p style="font-size:12px; margin: 5px 0;">2. Pega aquí el resultado:</p>
+        <textarea id="aiInputAdmin" style="width: 100%; height: 100px; background: #333; color: white; border: 1px solid #555;" placeholder="Ej: Perro | Lobo | Zorro..."></textarea>
+        
+        <button type="button" class="ai-btn-process" onclick="adminParseAI()">
+            ⚡ Procesar Texto Pegado
+        </button>
+    </div>
+
+    <script>
+        function copyPromptAdmin() {
+            const prompt = `Genera una lista para un juego de palabras en un bloque de código de texto plano.\n1. NO pongas título ni numeración.\n2. Formato: Palabra Común | Señuelo Similar | Palabra Relacionada.\n3. Genera 15 tríos.`;
+            navigator.clipboard.writeText(prompt);
+            alert("Prompt copiado. Pégalo en ChatGPT.");
+        }
+
+        function adminParseAI() {
+            const text = document.getElementById('aiInputAdmin').value;
+            const lines = text.split('\n');
+            let count = 0;
+            const $ = django.jQuery; // Usamos el jQuery interno de Django
+
+            lines.forEach(line => {
+                if(line.includes('|')) {
+                    const parts = line.split('|');
+                    if(parts.length >= 3) {
+                        // Clic en "Agregar otro"
+                        $('.add-row a').click();
+                        
+                        // Buscar la última fila creada
+                        const rows = $('.dynamic-palabra_set'); // Clase estándar de Django inlines
+                        const lastRow = rows.last();
+
+                        // Llenar los inputs (ajusta los índices según el orden de tus columnas en admin)
+                        // Normalmente Django los pone en orden de models.py
+                        const inputs = lastRow.find('input[type="text"]');
+                        if(inputs.length >= 3) {
+                            $(inputs[0]).val(parts[0].trim()); // Palabra
+                            $(inputs[1]).val(parts[1].trim()); // Señuelo
+                            $(inputs[2]).val(parts[2].trim()); // Difícil
+                            count++;
+                        }
+                    }
+                }
+            });
+
+            if(count > 0) {
+                alert("✅ Se agregaron " + count + " filas. ¡Recuerda GUARDAR abajo!");
+                document.getElementById('aiInputAdmin').value = "";
+            } else {
+                alert("❌ No se encontró formato válido.");
+            }
+        }
+    </script>
+{% endblock %}
