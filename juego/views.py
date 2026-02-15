@@ -70,18 +70,17 @@ def sala_espera(request):
     nick = request.session.get('gm_nick')
     if not nick: return redirect('inicio')
     
-    # Actualizar actividad y Estado
+    # Actualizar actividad
     try: 
         jugador = SesionGameMaster.objects.get(nickname=nick)
-        jugador.juego_actual = "El Impostor"  # <--- Lo que verá el admin
-        jugador.estado = "Configurando"
+        jugador.juego = "El Impostor"
         jugador.save()
     except SesionGameMaster.DoesNotExist: 
         return redirect('inicio')
 
     # Filtramos categorías públicas o creadas por admin
     categorias = Categoria.objects.filter(es_publica=True) | Categoria.objects.filter(creada_por_admin=True)
-    categorias = categorias.distinct().order_by('-ranking')
+    categorias = categorias.distinct().order_by('-suma_puntuacion')
 
     return render(request, 'juego/sala_espera.html', {
         'nick': nick,
@@ -436,3 +435,4 @@ def login_admin_custom(request):
 def logout_admin(request):
     logout(request)
     return redirect('inicio')
+
