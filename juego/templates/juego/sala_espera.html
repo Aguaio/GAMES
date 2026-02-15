@@ -55,7 +55,6 @@
         .option-row:hover { background: rgba(255,255,255,0.1); }
         input[type="checkbox"] { transform: scale(1.5); accent-color: #e74c3c; cursor: pointer;}
         
-        /* Icono de Ayuda (?) */
         .help-icon { color: #00d2ff; margin-left: auto; font-size: 1.1rem; padding: 5px; }
 
         .info-box { border: 2px solid #00d2ff; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); transition: all 0.3s ease; }
@@ -80,7 +79,7 @@
             body { align-items: flex-start; padding: 10px; overflow-y: auto; }
             .main-container { flex-direction: column; width: 100%; margin-bottom: 20px; max-height: none; }
             .col-config { padding: 20px; border-right: none; width: 100%; box-sizing: border-box; }
-            .col-info { display: none; } /* Ocultar panel info en móvil */
+            .col-info { display: none; } 
             .cat-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -107,7 +106,7 @@
                 </div>
                 <div class="player-list" id="playerListContainer"></div>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="newPlayerName" placeholder="Nombre..." onkeypress="handleEnter(event)">
+                    <input type="text" id="newPlayerName" placeholder="Nombre..." onkeypress="handleEnter(event)" maxlength="15">
                     <button class="btn-add" onclick="addPlayer()"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
@@ -144,25 +143,21 @@
                 <span>Usar Señuelo</span>
                 <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'senuelo')"></i>
             </div>
-
             <div class="option-row" id="rowSenueloSabe" style="margin-left: 30px; display:none;" onmouseenter="showInfo('senuelo_sabe')" onmouseleave="resetInfo()">
                 <input type="checkbox" id="checkSenueloSabe" checked> 
                 <span>Señuelo sabe su rol</span>
                 <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'senuelo_sabe')"></i>
             </div>
-
             <div class="option-row" onmouseenter="showInfo('dificil')" onmouseleave="resetInfo()">
                 <input type="checkbox" id="checkDificil"> 
                 <span>Modo Difícil</span>
                 <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'dificil')"></i>
             </div>
-
             <div class="option-row" onmouseenter="showInfo('hermanos')" onmouseleave="resetInfo()">
                 <input type="checkbox" id="checkHermanos" checked> 
                 <span>Hermanos Impostores</span>
                 <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'hermanos')"></i>
             </div>
-
             <div class="option-row" onmouseenter="showInfo('compulsivo')" onmouseleave="resetInfo()">
                 <input type="checkbox" id="checkCompulsivo"> 
                 <span>Impostor Compulsivo</span>
@@ -183,7 +178,6 @@
     </div>
 
     <script>
-        // Función alerta mejorada
         function showCustomAlert(msg, title="Atención") { 
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = msg; 
@@ -222,27 +216,40 @@
             'compulsivo': {t: 'IMPOSTOR COMPULSIVO', d: 'Permite que un jugador repita el rol de Impostor en la siguiente partida (genera paranoia).'}
         };
         
-        // Función Desktop (Hover)
         function showInfo(key) { document.getElementById('infoTitle').innerText = descriptions[key].t; document.getElementById('infoText').innerText = descriptions[key].d; }
         function resetInfo() { showInfo('default'); }
-        
-        // Función Móvil (Click en icono ?)
-        function showMobileInfo(e, key) {
-            e.stopPropagation(); // Evita que se marque el checkbox al dar clic en la interrogación
-            let info = descriptions[key];
-            showCustomAlert(info.d, info.t); // Reutilizamos el modal de alerta pero con el texto de info
-        }
-
+        function showMobileInfo(e, key) { e.stopPropagation(); let info = descriptions[key]; showCustomAlert(info.d, info.t); }
         function toggleSenueloSub() { let main = document.getElementById('checkSenuelo').checked; document.getElementById('rowSenueloSabe').style.display = main ? 'flex' : 'none'; }
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000); 
 
         function startGame() {
+            // 1. VALIDACIÓN JUGADORES MÍNIMOS
             if(players.length < 3) { showCustomAlert("Mínimo 3 jugadores para iniciar."); return; }
+            
             let catId = document.getElementById('categorySelect').value;
             if(!catId) { showCustomAlert("Por favor, selecciona una categoría."); return; }
+
+            // 2. VALIDACIÓN DE LÓGICA DE IMPOSTORES
+            let cantImpostores = parseInt(document.getElementById('impostorCount').value);
+            
+            // Regla: No pueden haber tantos impostores como jugadores.
+            // Regla estricta: Los impostores deben ser menos de la mitad para que sea divertido.
+            let maxImpostores = Math.floor((players.length - 1) / 2);
+            if (maxImpostores < 1) maxImpostores = 1; // Al menos 1 si hay 3 jugadores
+
+            if (cantImpostores >= players.length) {
+                showCustomAlert("¡No pueden ser todos Impostores! Debe haber inocentes.");
+                return;
+            }
+            // Si hay 3 jugadores y ponen 2 impostores -> Error
+            if (players.length === 3 && cantImpostores > 1) {
+                showCustomAlert("Para 3 jugadores, solo puede haber 1 impostor.");
+                return;
+            }
+
             let config = {
                 categoria_id: catId,
-                cant_impostores: document.getElementById('impostorCount').value,
+                cant_impostores: cantImpostores,
                 usar_senuelo: document.getElementById('checkSenuelo').checked,
                 senuelo_sabe: document.getElementById('checkSenueloSabe').checked,
                 modo_dificil: document.getElementById('checkDificil').checked,
