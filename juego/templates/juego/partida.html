@@ -62,6 +62,25 @@
         .rating-stars { display: flex; gap: 10px; font-size: 2rem; margin: 20px 0; justify-content: center; }
         .star { color: #555; cursor: pointer; transition: 0.2s; }
         .star.hover, .star.active { color: gold; text-shadow: 0 0 10px gold; }
+
+        /* --- AJUSTE MOVIL: PARTIDA --- */
+        @media (max-width: 600px) {
+            .game-card {
+                width: 95%; 
+                height: auto; 
+                min-height: 60vh; /* Altura mínima flexible */
+                padding: 15px;
+            }
+            h1 { font-size: 1.8rem; }
+            .role-text { font-size: 2.5rem; margin: 10px 0; }
+            .big-icon { font-size: 3.5rem; margin-bottom: 10px; }
+            .word-text { font-size: 1.5rem; padding: 8px 15px; }
+            .timer-circle { width: 70px; height: 70px; font-size: 2rem; margin: 15px auto; }
+            
+            /* Botones más fáciles de tocar */
+            .btn-action { width: 100%; font-size: 1.2rem; padding: 15px; margin-top: 20px; }
+        }
+        
     </style>
 </head>
 <body>
@@ -251,4 +270,5 @@
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000);
     </script>
 </body>
+
 </html>
