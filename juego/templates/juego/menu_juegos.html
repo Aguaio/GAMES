@@ -13,15 +13,10 @@
 
         .header-menu { z-index: 10; margin-top: 40px; text-align: center; }
         
-        /* --- NUEVO ESTILO PARA EL NOMBRE DEL USUARIO --- */
         .user-title {
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            /* Efecto Neón Azul Intenso */
+            text-transform: uppercase; letter-spacing: 5px;
             text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff, 0 0 40px #0055ff;
-            font-size: 3.5rem; /* Tamaño grande */
-            font-weight: 900;
-            margin: 0;
+            font-size: 3.5rem; font-weight: 900; margin: 0;
             display: flex; align-items: center; justify-content: center; gap: 15px;
         }
 
@@ -33,29 +28,52 @@
             border-radius: 20px; backdrop-filter: blur(10px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.3s; text-decoration: none; color: white;
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; padding: 20px; box-sizing: border-box;
         }
-        .game-card:hover { transform: translateY(-10px); border-color: #e74c3c; box-shadow: 0 0 30px rgba(231, 76, 60, 0.4); }
+        
+        /* Efecto Hover para PC y Active para Móvil */
+        .game-card:hover, .game-card.mobile-active { 
+            transform: translateY(-10px); 
+            border-color: #e74c3c; 
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.4); 
+        }
+        
         .game-icon { font-size: 5rem; color: #e74c3c; margin-bottom: 20px; transition: 0.3s; }
-        .game-card:hover .game-icon { transform: scale(1.1); text-shadow: 0 0 20px #e74c3c; }
-        .game-title { font-size: 1.5rem; font-weight: bold; text-transform: uppercase; }
-        .game-desc { font-size: 0.9rem; color: #aaa; text-align: center; padding: 0 20px; margin-top: 10px; }
+        .game-card:hover .game-icon, .game-card.mobile-active .game-icon { 
+            transform: scale(1.1); text-shadow: 0 0 20px #e74c3c; 
+        }
+
+        .game-title { font-size: 1.5rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center;}
+        
+        /* Descripción oculta por defecto en CSS, se muestra en hover/active */
+        .game-desc { 
+            font-size: 0.9rem; color: #ccc; text-align: center; 
+            opacity: 0.7; line-height: 1.4;
+            max-height: 0; overflow: hidden; transition: 0.5s; /* Animación de despliegue */
+        }
+        
+        /* Al hacer hover o active, mostramos el texto */
+        .game-card:hover .game-desc, .game-card.mobile-active .game-desc {
+            max-height: 100px; opacity: 1; margin-top: 10px;
+        }
+
         .coming-soon { opacity: 0.5; cursor: not-allowed; border-color: #555; pointer-events: none; }
         
         .btn-logout { position: absolute; top: 20px; right: 20px; z-index: 20; color: white; text-decoration: none; font-size: 1.5rem; opacity: 0.7; transition: 0.3s; }
         .btn-logout:hover { opacity: 1; color: #e74c3c; }
 
-        /* --- AJUSTE MOVIL: MENÚ --- */
+        /* AJUSTE MOVIL */
         @media (max-width: 600px) {
-            .user-title { font-size: 2rem; flex-direction: column; gap: 5px; } /* Nombre más chico y en columna */
+            .user-title { font-size: 2rem; flex-direction: column; gap: 5px; }
             .header-menu { margin-top: 20px; }
             .games-grid { margin-top: 30px; gap: 20px; }
-            .game-card { width: 90%; height: 250px; } /* Tarjetas más compactas */
-            .game-icon { font-size: 3.5rem; margin-bottom: 10px; }
-            .game-title { font-size: 1.2rem; }
-            .btn-logout { top: 10px; right: 10px; font-size: 1.2rem; }
+            .game-card { width: 85%; height: auto; min-height: 280px; }
+            .game-icon { font-size: 4rem; margin-bottom: 10px; }
+            
+            /* Indicador de toque */
+            .tap-hint { display: block; font-size: 0.7rem; color: #666; margin-top: 10px; font-style: italic; }
         }
-        
+        @media (min-width: 601px) { .tap-hint { display: none; } }
     </style>
 </head>
 <body>
@@ -69,15 +87,22 @@
     </div>
 
     <div class="games-grid">
-        <a href="{% url 'sala_espera' %}" class="game-card">
+        <a href="{% url 'sala_espera' %}" class="game-card" onclick="handleCardClick(event, this)">
             <div class="game-icon"><i class="fas fa-user-secret"></i></div>
             <div class="game-title">El Impostor</div>
-            <div class="game-desc">Descubre quién miente antes de que sea tarde.</div>
+            
+            <div class="game-desc">
+                Todos reciben una palabra secreta menos uno. <br>
+                <b>Objetivo:</b> Descubre al mentiroso o sobrevive engañando a todos sin saber la palabra.
+            </div>
+            
+            <div class="tap-hint"><i class="fas fa-hand-pointer"></i> Toca para info</div>
         </a>
+
         <div class="game-card coming-soon">
             <div class="game-icon" style="color: #555;"><i class="fas fa-lock"></i></div>
             <div class="game-title" style="color: #888;">???</div>
-            <div class="game-desc">Próximamente...</div>
+            <div class="game-desc">Próximamente más juegos...</div>
         </div>
     </div>
 
@@ -97,7 +122,51 @@
         }
         createParticles();
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000);
+
+        // --- LÓGICA DOBLE TAP PARA MÓVIL ---
+        function handleCardClick(e, element) {
+            // Detectar si es pantalla pequeña (Móvil/Tablet)
+            if (window.innerWidth <= 768) {
+                // Si la tarjeta NO tiene la clase 'mobile-active', es el primer toque
+                if (!element.classList.contains('mobile-active')) {
+                    e.preventDefault(); // Detener la navegación (no entrar al link)
+                    
+                    // Quitar activo de otras tarjetas (si hubieran más)
+                    document.querySelectorAll('.game-card').forEach(c => {
+                        c.classList.remove('mobile-active');
+                        // Resetear texto de ayuda
+                        let hint = c.querySelector('.tap-hint');
+                        if(hint) hint.innerHTML = '<i class="fas fa-hand-pointer"></i> Toca para info';
+                    });
+
+                    // Activar esta tarjeta
+                    element.classList.add('mobile-active');
+                    
+                    // Cambiar texto de ayuda
+                    let hint = element.querySelector('.tap-hint');
+                    if(hint) {
+                        hint.innerHTML = '<i class="fas fa-play"></i> Toca de nuevo para jugar';
+                        hint.style.color = '#00d2ff';
+                    }
+                }
+                // Si YA tiene la clase 'mobile-active', es el segundo toque:
+                // Dejamos que el evento siga su curso y el href funcione.
+            }
+        }
+
+        // Si tocan fuera de las tarjetas, resetear estado
+        document.body.addEventListener('click', function(e) {
+            if (!e.target.closest('.game-card')) {
+                document.querySelectorAll('.game-card').forEach(c => {
+                    c.classList.remove('mobile-active');
+                    let hint = c.querySelector('.tap-hint');
+                    if(hint) {
+                        hint.innerHTML = '<i class="fas fa-hand-pointer"></i> Toca para info';
+                        hint.style.color = '#666';
+                    }
+                });
+            }
+        });
     </script>
 </body>
-
 </html>
