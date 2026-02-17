@@ -5,6 +5,27 @@
     <meta charset="UTF-8">
     <title>Acceso Admin</title>
     {% include "juego/inicio.html" with only_styles=True %}
+    <style>
+        /* ESTILO PARA EL MENSAJE DE ERROR NEÓN */
+        .error-msg {
+            color: #ff4d4d;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff4d4d;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px #ff0000;
+            text-align: center;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
 </head>
 <body>
     <div class="stars"></div>
@@ -15,7 +36,9 @@
         
         {% if messages %}
             {% for message in messages %}
-                <div class="error-msg">{{ message }}</div>
+                <div class="error-msg">
+                    <i class="fas fa-exclamation-circle"></i> {{ message }}
+                </div>
             {% endfor %}
         {% endif %}
 
