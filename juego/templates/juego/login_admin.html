@@ -34,7 +34,7 @@
             {% endfor %}
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" action="{% url 'login_admin' %}">
             {% csrf_token %}
             <input type="text" name="user" placeholder="Usuario Admin" required autocomplete="off">
             <input type="password" name="pass" placeholder="Contraseña" required>
