@@ -18,7 +18,7 @@ urlpatterns = [
     path('api/votar/', views.api_votar_categoria, name='api_votar_categoria'),
     
     # --- RUTAS ADMIN ---
-    path('sistema/login/', views.login_admin_custom, name='login_admin'),
+    path('sistema/login/', views.login_admin, name='login_admin'),
     path('sistema/panel/', views.panel_control, name='panel_control'),
     path('sistema/logout/', views.logout_admin, name='logout_admin'),
 
@@ -28,4 +28,5 @@ urlpatterns = [
     path('api/listar-categorias/', views.api_listar_categorias, name='api_listar_categorias'),
     path('api/eliminar-categoria/', views.api_eliminar_categoria, name='api_eliminar_categoria'),
 ]
+
 
