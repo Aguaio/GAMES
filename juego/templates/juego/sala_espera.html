@@ -35,6 +35,7 @@
             flex: 0 0 320px; padding: 25px; 
             border-right: 1px solid rgba(255,255,255,0.1);
             display: flex; flex-direction: column; background: rgba(0,0,0,0.2);
+            overflow-y: auto;
         }
 
         /* --- COLUMNA 3: CATEGORÍAS --- */
@@ -124,7 +125,7 @@
         .btn-modal-cancel { background: transparent; color: #aaa; border: 2px solid #555; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-modal-cancel:hover { border-color: white; color: white; }
 
-        /* --- TOOLTIP FLOTANTE MEJORADO (PC) --- */
+        /* --- TOOLTIP FLOTANTE MEJORADO (Z-INDEX ALTO) --- */
         #global-tooltip {
             position: fixed;
             background: #1a1a2e; 
@@ -133,10 +134,10 @@
             padding: 18px;
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(0, 210, 255, 0.2);
-            font-size: 1.1rem; /* Letra más grande */
+            font-size: 1.1rem; /* TAMAÑO AGRANDADO */
             line-height: 1.6;
-            width: 380px; /* Más ancho */
-            z-index: 10000;
+            width: 380px; 
+            z-index: 10000; /* POR ENCIMA DE TODO EL DISEÑO */
             pointer-events: none;
             display: none; 
             white-space: normal;
@@ -315,7 +316,7 @@
             closeConfirmModal();
         });
 
-        // --- LÓGICA JUGADORES ---
+        // --- JUGADORES ---
         let players = JSON.parse(localStorage.getItem('my_players')) || [];
         function savePlayersToMemory() { localStorage.setItem('my_players', JSON.stringify(players)); }
         
@@ -333,14 +334,13 @@
             let container = document.getElementById('playerListContainer');
             let html = '';
             if(players.length === 0) html = '<div style="color:#777; padding:20px; text-align:center; font-style:italic;">Agrega jugadores para empezar...</div>';
-            players.forEach((p, i) => { html += `<div class="player-item"><span><i class="fas fa-user" style="color:#00d2ff; margin-right:8px;"></i> ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
+            players.forEach((p, i) => { html += `<div class="player-item"><span><i class="fas fa-user" style="color:#00d2ff; margin-right:8px;"></i> ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
             container.innerHTML = html;
         }
         renderPlayers();
 
         function handleEnter(e) { if(e.key === 'Enter') addPlayer(); }
         
-        // --- SELECCIÓN CATEGORÍA ---
         function selectCategory(element, id) { 
             document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected')); 
             element.classList.add('selected'); 
@@ -357,7 +357,7 @@
         };
         
         function showHelp(key) {
-            if (window.innerWidth > 900) return; 
+            if (window.innerWidth > 900) return; // En PC solo Hover
             let info = helpTexts[key];
             showCustomAlert(info.d, info.t);
         }
@@ -377,6 +377,7 @@
                     let x = e.clientX + 20;
                     let y = e.clientY - (tooltip.offsetHeight / 2);
                     
+                    // Ajustes de bordes de pantalla
                     if (x + 400 > window.innerWidth) x = e.clientX - 400;
                     if (y + tooltip.offsetHeight > window.innerHeight) y = window.innerHeight - tooltip.offsetHeight - 20;
                     if (y < 20) y = 20;
@@ -395,7 +396,6 @@
         
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000); 
 
-        // --- INICIAR JUEGO ---
         function startGame() {
             if(players.length < 3) { showCustomAlert("Se necesitan mínimo 3 jugadores."); return; }
             let catId = document.getElementById('categorySelect').value;
