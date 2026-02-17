@@ -129,8 +129,15 @@
         <p>Todos han visto sus roles.</p>
         
         <div style="margin: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; width: 100%; box-sizing: border-box;">
-            <p style="margin:0; font-size: 0.9rem;">Categoría:</p>
-            <h2 style="margin: 5px 0; color: white;">{{ partida.categoria_actual.nombre }}</h2>
+            <p style="margin:0; font-size: 0.9rem; color: #aaa;">Categoría:</p>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px;">
+                <h2 id="finalCategoryText" style="margin: 0; color: white; letter-spacing: 2px;">••••••••••</h2>
+                
+                <button onclick="toggleCategory()" style="background: none; border: 1px solid #555; color: #00d2ff; padding: 10px; border-radius: 50%; cursor: pointer; transition: 0.3s;">
+                    <i id="eyeIcon" class="fas fa-eye"></i>
+                </button>
+            </div>
         </div>
 
         <button onclick="openRating()" class="btn-action btn-reveal" style="font-size: 1.1rem; background: #e74c3c;">
@@ -295,4 +302,5 @@
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000);
     </script>
 </body>
+
 </html>
