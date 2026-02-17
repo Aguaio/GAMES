@@ -484,16 +484,26 @@ def api_eliminar_categoria(request):
     return JsonResponse({'status': 'error'})
 
 # LOGIN/LOGOUT ADMIN
-def login_admin_custom(request):
-    if request.user.is_staff: return redirect('panel_control')
+from django.contrib import messages
+
+def login_admin(request):
     if request.method == 'POST':
-        user = authenticate(request, username=request.POST.get('username'), password=request.POST.get('password'))
-        if user and user.is_staff:
+        u = request.POST.get('user')
+        p = request.POST.get('pass')
+        user = authenticate(username=u, password=p)
+        
+        if user is not None and user.is_staff:
             login(request, user)
             return redirect('panel_control')
+        else:
+            # SI FALLA: Agregamos un mensaje de error y recargamos la MISMA página
+            messages.error(request, "Usuario o contraseña incorrectos.")
+            return render(request, 'juego/login_admin.html') # Tu plantilla neón
+            
     return render(request, 'juego/login_admin.html')
 
 def logout_admin(request):
     logout(request)
 
     return redirect('inicio')
+
