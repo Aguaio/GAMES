@@ -29,3 +29,4 @@ urlpatterns = [
     path('api/eliminar-categoria/', views.api_eliminar_categoria, name='api_eliminar_categoria'),
 ]
 
+
