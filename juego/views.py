@@ -217,6 +217,14 @@ def iniciar_partida(request):
             jugadores_nombres = data.get('jugadores', [])
             config_data = data.get('config', {})
             
+            # --- VALIDACIÓN DE SEGURIDAD (FIX) ---
+            # Si viene vacío, texto o basura, forzamos a 1
+            try:
+                c_imp = int(config_data.get('cant_impostores'))
+            except (ValueError, TypeError):
+                c_imp = 1 
+            # -------------------------------------
+
             # Limpiar partida anterior
             PartidaLocal.objects.filter(anfitrion=gm).delete()
             
@@ -224,7 +232,7 @@ def iniciar_partida(request):
             nueva_partida = PartidaLocal.objects.create(
                 anfitrion=gm,
                 categoria_actual_id=config_data.get('categoria_id'),
-                cantidad_impostores=int(config_data.get('cant_impostores', 1)),
+                cantidad_impostores=c_imp, # Usamos la variable validada
                 modo_dificil=config_data.get('modo_dificil', False),
                 usar_senuelo=config_data.get('usar_senuelo', False),
                 senuelo_sabe_rol=config_data.get('senuelo_sabe', True),
@@ -256,7 +264,7 @@ def iniciar_partida(request):
             return JsonResponse({'status': 'ok', 'redirect': '/juego/partida/'})
             
         except Exception as e:
-            return JsonResponse({'status': 'error', 'msg': str(e)})
+            return JsonResponse({'status': 'error', 'msg': f"Error interno: {str(e)}"})
 
     return JsonResponse({'status': 'error'})
 
@@ -487,4 +495,5 @@ def login_admin_custom(request):
 
 def logout_admin(request):
     logout(request)
+
     return redirect('inicio')
