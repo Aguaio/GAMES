@@ -17,11 +17,10 @@ urlpatterns = [
     path('api/iniciar-partida/', views.iniciar_partida, name='iniciar_partida'),
     path('api/votar/', views.api_votar_categoria, name='api_votar_categoria'),
     
-    # --- RUTAS ADMIN (CORREGIDAS) ---
-    # Cambiamos views.login_admin_custom por views.login_admin
-    path('sistema/login/', views.login_admin, name='login_admin'),
-    path('sistema/panel/', views.panel_control, name='panel_control'),
-    path('sistema/logout/', views.logout_admin, name='logout_admin'),
+    # --- RUTAS ADMIN  ---
+    path('admin-login/', views.login_admin, name='login_admin'),
+    path('panel-control/', views.panel_control, name='panel_control'),
+    path('panel-logout/', views.logout_admin, name='logout_admin'),
 
     # --- APIs ADMIN (AJAX) ---
     path('api/panel-datos/', views.api_datos_panel, name='api_datos_panel'),
@@ -29,3 +28,4 @@ urlpatterns = [
     path('api/listar-categorias/', views.api_listar_categorias, name='api_listar_categorias'),
     path('api/eliminar-categoria/', views.api_eliminar_categoria, name='api_eliminar_categoria'),
 ]
+
