@@ -21,7 +21,7 @@
             flex-direction: column; justify-content: center; align-items: center;
             text-align: center; padding: 20px; box-sizing: border-box;
             box-shadow: 0 0 50px rgba(0,0,0,0.5); border: 1px solid #333;
-            position: absolute; /* Para que no ocupen espacio si están ocultas */
+            position: absolute;
         }
         
         .game-card.active { display: flex; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -32,68 +32,68 @@
         h2 { color: #00d2ff; font-size: 1.8rem; margin: 20px 0; }
         p { color: #aaa; font-size: 1.2rem; line-height: 1.6; }
         
-        .big-icon { font-size: 5rem; margin-bottom: 20px; color: #555; }
-        .role-text { font-size: 3rem; font-weight: bold; margin: 20px 0; text-shadow: 0 0 20px currentColor; }
-        .word-text { font-size: 2rem; color: white; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 10px; }
+        /* ICONOS Y ROLES */
+        .big-icon { font-size: 6rem; margin-bottom: 20px; transition: 0.3s; }
+        
+        /* Clases de Color para el ICONO */
+        .icon-impostor { color: #e74c3c; text-shadow: 0 0 30px rgba(231, 76, 60, 0.5); }
+        .icon-inocente { color: #2ecc71; text-shadow: 0 0 30px rgba(46, 204, 113, 0.5); }
+        .icon-senuelo  { color: #f1c40f; text-shadow: 0 0 30px rgba(241, 196, 15, 0.5); }
+        .icon-neutro   { color: #ecf0f1; }
+
+        /* Texto del Rol (Siempre Neutro) */
+        .role-text { 
+            font-size: 3.5rem; font-weight: 900; margin: 10px 0 30px 0; 
+            color: #ecf0f1; /* BLANCO/GRIS NEUTRO */
+            text-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        .word-text { font-size: 2rem; color: #00d2ff; background: rgba(0, 210, 255, 0.1); padding: 15px 30px; border-radius: 15px; border: 1px solid rgba(0, 210, 255, 0.3); }
+        .no-word { color: #e74c3c; background: rgba(231, 76, 60, 0.1); border-color: rgba(231, 76, 60, 0.3); }
 
         /* BOTONES */
         .btn-action {
-            background: #00d2ff; color: #000; padding: 20px 40px; border-radius: 50px;
+            background: linear-gradient(45deg, #00d2ff, #0055ff); color: white; 
+            padding: 20px 40px; border-radius: 50px;
             font-size: 1.5rem; font-weight: bold; border: none; cursor: pointer;
-            margin-top: 30px; width: 80%; box-shadow: 0 5px 20px rgba(0, 210, 255, 0.4);
+            margin-top: 30px; width: 80%; box-shadow: 0 5px 20px rgba(0, 85, 255, 0.4);
             transition: 0.2s;
         }
         .btn-action:active { transform: scale(0.95); }
-        .btn-reveal { background: #2ecc71; box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4); }
-
-        /* COLORES DE ROLES */
-        .impostor-theme { color: #e74c3c; }
-        .innocent-theme { color: #2ecc71; }
-        .decoy-theme { color: #f1c40f; }
+        .btn-reveal { background: linear-gradient(45deg, #27ae60, #2ecc71); box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4); }
 
         /* TIMER CIRCULAR */
         .timer-circle {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 5px solid #333; display: flex; justify-content: center; align-items: center;
-            font-size: 3rem; font-weight: bold; margin: 20px auto;
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 4px solid #333; display: flex; justify-content: center; align-items: center;
+            font-size: 2.5rem; font-weight: bold; margin: 20px auto; color: #555;
         }
 
         /* MODAL DE VOTACIÓN */
-        .rating-stars { display: flex; gap: 10px; font-size: 2rem; margin: 20px 0; justify-content: center; }
-        .star { color: #555; cursor: pointer; transition: 0.2s; }
-        .star.hover, .star.active { color: gold; text-shadow: 0 0 10px gold; }
+        .rating-stars { display: flex; gap: 10px; font-size: 2.5rem; margin: 20px 0; justify-content: center; }
+        .star { color: #333; cursor: pointer; transition: 0.2s; }
+        .star.hover, .star.active { color: gold; text-shadow: 0 0 15px gold; }
 
-        /* --- AJUSTE MOVIL: PARTIDA --- */
         @media (max-width: 600px) {
-            .game-card {
-                width: 95%; 
-                height: auto; 
-                min-height: 60vh; /* Altura mínima flexible */
-                padding: 15px;
-            }
-            h1 { font-size: 1.8rem; }
-            .role-text { font-size: 2.5rem; margin: 10px 0; }
-            .big-icon { font-size: 3.5rem; margin-bottom: 10px; }
-            .word-text { font-size: 1.5rem; padding: 8px 15px; }
-            .timer-circle { width: 70px; height: 70px; font-size: 2rem; margin: 15px auto; }
-            
-            /* Botones más fáciles de tocar */
-            .btn-action { width: 100%; font-size: 1.2rem; padding: 15px; margin-top: 20px; }
+            .game-card { width: 95%; padding: 15px; }
+            h1 { font-size: 1.5rem; }
+            .role-text { font-size: 2.8rem; }
+            .big-icon { font-size: 4.5rem; }
         }
-        
     </style>
 </head>
 <body>
 
     <script>
+        // Datos inyectados desde Django
         const PLAYERS = [
             {% for j in jugadores %}
             {
                 nombre: "{{ j.nombre }}",
                 es_impostor: {{ j.es_impostor|yesno:"true,false" }},
                 es_senuelo: {{ j.es_senuelo|yesno:"true,false" }},
-                palabra: "{{ j.palabra_asignada }}",
-                color: "{% if j.es_impostor %}#e74c3c{% elif j.es_senuelo %}#f1c40f{% else %}#2ecc71{% endif %}"
+                palabra: "{{ j.palabra_asignada }}"
             },
             {% endfor %}
         ];
@@ -102,35 +102,38 @@
         const CAT_ID = {{ partida.categoria_actual.id }};
     </script>
 
-    <div id="cardPass" class="game-card"> <div class="big-icon"><i class="fas fa-mobile-alt"></i></div>
-        <p>PÁSALE EL DISPOSITIVO A:</p>
-        <h1 id="passName">...</h1>
+    <div id="cardPass" class="game-card"> 
+        <div class="big-icon icon-neutro"><i class="fas fa-mobile-alt"></i></div>
+        <p style="text-transform: uppercase; letter-spacing: 2px;">Pásale el dispositivo a:</p>
+        <h1 id="passName" style="font-size: 3rem; color: #00d2ff; margin: 20px 0;">...</h1>
         <p style="font-size: 0.9rem; color: #666;">(Nadie más debe mirar la pantalla)</p>
         <button class="btn-action" onclick="showReveal()">SOY YO</button>
     </div>
 
     <div id="cardReveal" class="game-card">
-        <div class="big-icon" id="roleIcon"><i class="fas fa-user-secret"></i></div>
-        <div id="roleContent">
-            <p>TU ERES:</p>
-            <div id="roleTitle" class="role-text">ROL</div>
-            <p style="margin-top:20px;">PALABRA SECRETA:</p>
-            <div id="roleWord" class="word-text">PALABRA</div>
-        </div>
+        <div style="font-size: 0.9rem; color: #888; text-transform: uppercase; margin-bottom: -10px;">Tu eres:</div>
+        
+        <div id="roleIcon" class="big-icon"><i class="fas fa-user"></i></div>
+        
+        <div id="roleTitle" class="role-text">...</div>
+        
+        <p style="margin-bottom: 10px;">Tu palabra secreta es:</p>
+        <div id="roleWord" class="word-text">...</div>
+        
         <div class="timer-circle" id="timerDisplay">5</div>
     </div>
 
     <div id="cardGameOn" class="game-card">
         <div class="big-icon" style="color: #00d2ff;"><i class="fas fa-comments"></i></div>
-        <h1 style="color: #00d2ff;">¡A DEBATIR!</h1>
+        <h1 style="color: #00d2ff;">¡A JUGAR!</h1>
         <p>Todos han visto sus roles.</p>
         
-        <div style="margin: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
-            <p>Categoría:</p>
-            <h2 style="margin: 5px 0;">{{ partida.categoria_actual.nombre }}</h2>
+        <div style="margin: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; width: 100%; box-sizing: border-box;">
+            <p style="margin:0; font-size: 0.9rem;">Categoría:</p>
+            <h2 style="margin: 5px 0; color: white;">{{ partida.categoria_actual.nombre }}</h2>
         </div>
 
-        <button onclick="openRating()" class="btn-action btn-reveal" style="font-size: 1.2rem;">
+        <button onclick="openRating()" class="btn-action btn-reveal" style="font-size: 1.1rem; background: #e74c3c;">
             TERMINAR PARTIDA
         </button>
     </div>
@@ -155,58 +158,62 @@
         let timerInterval;
         let selectedVote = 0;
 
-        // --- FUNCIONES DE VISIBILIDAD (Arregla bug de superposición) ---
         function showCard(cardId) {
-            // Ocultar TODAS primero
             document.querySelectorAll('.game-card').forEach(el => el.classList.remove('active'));
-            // Mostrar la deseada
             document.getElementById(cardId).classList.add('active');
         }
 
-        // --- LÓGICA DEL JUEGO ---
         function updatePassCard() {
             if (currentIndex >= PLAYERS.length) {
-                showCard('cardGameOn'); // Fin de la ronda
+                showCard('cardGameOn'); 
                 return;
             }
             document.getElementById('passName').innerText = PLAYERS[currentIndex].nombre;
             showCard('cardPass');
         }
 
+        // --- LÓGICA DE ROLES Y COLORES ---
         function showReveal() {
             let p = PLAYERS[currentIndex];
             let roleTitle = "INOCENTE";
-            let roleClass = "innocent-theme";
-            let icon = "fa-user";
+            let iconClass = "icon-inocente"; // Por defecto Verde
+            let iconName = "fa-user";
+            let wordText = p.palabra;
+            let wordClass = "word-text";
 
             if (p.es_impostor) {
                 roleTitle = "IMPOSTOR";
-                roleClass = "impostor-theme";
-                icon = "fa-user-secret";
-            } else if (p.es_senuelo) {
+                iconClass = "icon-impostor"; // Rojo
+                iconName = "fa-user-secret";
+                wordText = "NO TIENES PALABRA";
+                wordClass = "word-text no-word";
+            } 
+            else if (p.es_senuelo) {
                 if (SENUELO_SABE) {
+                    // Si sabe: Amarillo y texto SEÑUELO
                     roleTitle = "SEÑUELO";
-                    roleClass = "decoy-theme";
-                    icon = "fa-mask";
+                    iconClass = "icon-senuelo"; 
+                    iconName = "fa-user-ninja";
                 } else {
-                    roleTitle = "INOCENTE"; // Miente
-                    roleClass = "innocent-theme";
-                    icon = "fa-user";
+                    // Si NO sabe: Se disfraza de inocente (Verde y texto INOCENTE)
+                    roleTitle = "INOCENTE"; 
+                    iconClass = "icon-inocente"; 
+                    iconName = "fa-user";
                 }
             }
 
-            let titleEl = document.getElementById('roleTitle');
-            titleEl.innerText = roleTitle;
-            titleEl.className = "role-text " + roleClass;
-            document.getElementById('roleIcon').innerHTML = `<i class="fas ${icon}" style="color: ${p.color}"></i>`;
+            // Aplicar cambios al DOM
+            document.getElementById('roleTitle').innerText = roleTitle;
             
-            if (p.es_impostor && !p.palabra) {
-                document.getElementById('roleWord').innerText = "NO TIENES PALABRA";
-                document.getElementById('roleWord').style.color = "#e74c3c";
-            } else {
-                document.getElementById('roleWord').innerText = p.palabra;
-                document.getElementById('roleWord').style.color = "white";
-            }
+            // Icono: Cambiar clase de color e icono FontAwesome
+            let iconContainer = document.getElementById('roleIcon');
+            iconContainer.className = "big-icon " + iconClass;
+            iconContainer.innerHTML = `<i class="fas ${iconName}"></i>`;
+            
+            // Palabra
+            let wordEl = document.getElementById('roleWord');
+            wordEl.innerText = wordText;
+            wordEl.className = wordClass;
 
             showCard('cardReveal');
             startTimer();
@@ -214,12 +221,14 @@
 
         function startTimer() {
             let timeLeft = REVEAL_TIME;
-            document.getElementById('timerDisplay').innerText = timeLeft;
+            let display = document.getElementById('timerDisplay');
+            display.innerText = timeLeft;
+            display.style.color = "#fff";
             
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft--;
-                document.getElementById('timerDisplay').innerText = timeLeft;
+                display.innerText = timeLeft;
                 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
@@ -233,10 +242,7 @@
             updatePassCard();
         }
 
-        // --- SISTEMA DE VOTACIÓN ---
-        function openRating() {
-            showCard('cardRating');
-        }
+        function openRating() { showCard('cardRating'); }
 
         function vote(val) {
             selectedVote = val;
@@ -249,26 +255,19 @@
 
         function submitAndExit() {
             if(selectedVote > 0) {
-                // Enviar voto por AJAX
                 let fd = new FormData();
                 fd.append('categoria_id', CAT_ID);
                 fd.append('puntos', selectedVote);
-
                 fetch("{% url 'api_votar_categoria' %}", {
-                    method: 'POST',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    body: fd
-                }); // No esperamos respuesta, nos vamos igual
+                    method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}, body: fd
+                });
             }
             window.location.href = "{% url 'sala_espera' %}";
         }
 
-        // Iniciar el juego correctamente
+        // Iniciar
         updatePassCard();
-        
-        // Ping
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000);
     </script>
 </body>
-
 </html>
