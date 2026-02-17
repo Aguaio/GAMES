@@ -160,6 +160,60 @@
             .col-categories { height: auto; min-height: 500px; padding: 20px; }
             .player-list { max-height: 200px; }
         }
+
+        /* --- TOOLTIP PERSONALIZADO (Solo PC) --- */
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* El texto emergente */
+        .tooltip-wrapper::after {
+            content: attr(data-tooltip); /* Toma el texto del atributo HTML */
+            position: absolute;
+            bottom: 125%; /* Aparece arriba del icono */
+            right: 0;     /* Alineado a la derecha para que no se salga */
+            width: 250px; /* Ancho fijo para que el texto baje de línea */
+            background-color: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #00d2ff;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none; /* Para que el mouse no lo tape */
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            white-space: normal; /* PERMITE SALTOS DE LÍNEA */
+        }
+
+        /* Triangulito decorativo abajo */
+        .tooltip-wrapper::before {
+            content: "";
+            position: absolute;
+            bottom: 115%;
+            right: 5px; /* Ajustado al centro del icono aprox */
+            border-width: 6px;
+            border-style: solid;
+            border-color: #00d2ff transparent transparent transparent;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Mostrar solo cuando hay HOVER (Mouse) */
+        @media (hover: hover) {
+            .tooltip-wrapper:hover::after,
+            .tooltip-wrapper:hover::before {
+                visibility: visible;
+                opacity: 1;
+            }
+        }
+        
     </style>
 </head>
 <body>
@@ -402,3 +456,4 @@
 </body>
 
 </html>
+
