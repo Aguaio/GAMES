@@ -170,6 +170,25 @@
             document.getElementById(cardId).classList.add('active');
         }
 
+        let isCatVisible = false;
+        const realCategoryName = "{{ partida.categoria_actual.nombre }}"; // Guardamos el nombre real
+
+        function toggleCategory() {
+            let textEl = document.getElementById('finalCategoryText');
+            let iconEl = document.getElementById('eyeIcon');
+            
+            if (!isCatVisible) {
+                textEl.innerText = realCategoryName; // Mostrar nombre
+                textEl.style.color = "#00d2ff";      // Ponerlo azul neón
+                iconEl.className = "fas fa-eye-slash"; // Cambiar icono a ojo cerrado
+            } else {
+                textEl.innerText = "••••••••••";     // Ocultar
+                textEl.style.color = "white";
+                iconEl.className = "fas fa-eye";
+            }
+            isCatVisible = !isCatVisible;
+        }
+
         function updatePassCard() {
             if (currentIndex >= PLAYERS.length) {
                 showCard('cardGameOn'); 
@@ -304,3 +323,4 @@
 </body>
 
 </html>
+
