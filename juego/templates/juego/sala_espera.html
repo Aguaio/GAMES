@@ -95,7 +95,6 @@
         .cat-name { font-weight: 800; font-size: 1.1rem; margin-bottom: 10px; color: white; text-transform: uppercase; letter-spacing: 1px; z-index: 2; }
         .cat-stats { display: flex; gap: 15px; font-size: 0.9rem; color: #aaa; z-index: 2; background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 20px; }
         
-        /* ESTILOS DE LAS OPCIONES DE JUEGO */
         .option-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.2s; cursor: pointer; background: rgba(255,255,255,0.03); }
         .option-row:hover { background: rgba(255,255,255,0.08); }
         input[type="checkbox"] { width: 18px; height: 18px; accent-color: #e74c3c; cursor: pointer; margin: 0; }
@@ -125,25 +124,29 @@
         .btn-modal-cancel { background: transparent; color: #aaa; border: 2px solid #555; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-modal-cancel:hover { border-color: white; color: white; }
 
-        /* --- TOOLTIP PERSONALIZADO (CSS MÁGICO) --- */
-        /* Esto hace que el texto salga en un globito negro en PC */
-        .tooltip-wrapper { position: relative; display: inline-block; }
-        .tooltip-wrapper::after {
-            content: attr(data-tooltip);
-            position: absolute; bottom: 125%; right: 0; width: 250px;
-            background-color: #1a1a2e; color: #fff; text-align: center;
-            padding: 10px; border-radius: 8px; border: 1px solid #00d2ff;
-            font-size: 0.85rem; line-height: 1.4; visibility: hidden; opacity: 0;
-            transition: opacity 0.3s; pointer-events: none; z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); white-space: normal;
+        /* --- TOOLTIP FLOTANTE MEJORADO (PC) --- */
+        #global-tooltip {
+            position: fixed;
+            background: #1a1a2e; 
+            color: #fff;
+            border: 2px solid #00d2ff;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(0, 210, 255, 0.2);
+            font-size: 1.1rem; /* Letra más grande */
+            line-height: 1.6;
+            width: 380px; /* Más ancho */
+            z-index: 10000;
+            pointer-events: none;
+            display: none; 
+            white-space: normal;
+            text-align: left;
+            animation: tooltipFade 0.2s ease-out;
         }
-        .tooltip-wrapper::before {
-            content: ""; position: absolute; bottom: 115%; right: 5px;
-            border-width: 6px; border-style: solid; border-color: #00d2ff transparent transparent transparent;
-            visibility: hidden; opacity: 0; transition: opacity 0.3s;
-        }
-        @media (hover: hover) {
-            .tooltip-wrapper:hover::after, .tooltip-wrapper:hover::before { visibility: visible; opacity: 1; }
+
+        @keyframes tooltipFade {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         @media (max-width: 1000px) {
@@ -156,6 +159,8 @@
     </style>
 </head>
 <body>
+
+    <div id="global-tooltip"></div>
 
     <div id="alertModal" class="modal-overlay">
         <div class="modal-content">
@@ -213,7 +218,7 @@
             <div class="option-row">
                 <input type="checkbox" id="checkSenuelo" onchange="toggleSenueloSub()"> 
                 <span>Usar Señuelo</span>
-                <span class="tooltip-wrapper" data-tooltip="Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse y acusar mal.">
+                <span class="tooltip-trigger" data-tooltip="Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse y acusar mal.">
                     <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo')"></i>
                 </span>
             </div>
@@ -221,7 +226,7 @@
             <div class="option-row" id="rowSenueloSabe" style="margin-left: 20px; display:none; background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.3);">
                 <input type="checkbox" id="checkSenueloSabe" checked> 
                 <span style="font-size: 0.9rem;">Señuelo sabe su rol</span>
-                <span class="tooltip-wrapper" data-tooltip="Si activas esto, el Señuelo verá 'ERES SEÑUELO'. Si no, verá 'ERES INOCENTE' (creyendo que tiene la palabra real).">
+                <span class="tooltip-trigger" data-tooltip="Si activas esto, el Señuelo verá 'ERES SEÑUELO'. Si no, verá 'ERES INOCENTE' (creyendo que tiene la palabra real).">
                     <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo_sabe')"></i>
                 </span>
             </div>
@@ -229,7 +234,7 @@
             <div class="option-row">
                 <input type="checkbox" id="checkDificil"> 
                 <span>Modo Difícil</span>
-                <span class="tooltip-wrapper" data-tooltip="El Impostor recibirá una palabra relacionada en lugar de 'NO TIENES PALABRA', haciendo más difícil detectarlo.">
+                <span class="tooltip-trigger" data-tooltip="El Impostor recibirá una palabra relacionada en lugar de 'NO TIENES PALABRA', haciendo más difícil detectarlo.">
                     <i class="fas fa-question-circle help-icon" onclick="showHelp('dificil')"></i>
                 </span>
             </div>
@@ -237,7 +242,7 @@
             <div class="option-row">
                 <input type="checkbox" id="checkHermanos" checked> 
                 <span>Hermanos Impostores</span>
-                <span class="tooltip-wrapper" data-tooltip="Si hay más de 1 impostor, sabrán quiénes son sus compañeros.">
+                <span class="tooltip-trigger" data-tooltip="Si hay más de 1 impostor, sabrán quiénes son sus compañeros.">
                     <i class="fas fa-question-circle help-icon" onclick="showHelp('hermanos')"></i>
                 </span>
             </div>
@@ -245,7 +250,7 @@
             <div class="option-row">
                 <input type="checkbox" id="checkCompulsivo"> 
                 <span>Impostor Compulsivo</span>
-                <span class="tooltip-wrapper" data-tooltip="Permite que un jugador repita el rol de Impostor dos veces seguidas. (Normalmente el juego trata de evitarlo).">
+                <span class="tooltip-trigger" data-tooltip="Permite que un jugador repita el rol de Impostor dos veces seguidas. (Normalmente el juego trata de evitarlo).">
                     <i class="fas fa-question-circle help-icon" onclick="showHelp('compulsivo')"></i>
                 </span>
             </div>
@@ -328,7 +333,7 @@
             let container = document.getElementById('playerListContainer');
             let html = '';
             if(players.length === 0) html = '<div style="color:#777; padding:20px; text-align:center; font-style:italic;">Agrega jugadores para empezar...</div>';
-            players.forEach((p, i) => { html += `<div class="player-item"><span><i class="fas fa-user" style="color:#00d2ff; margin-right:8px;"></i> ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
+            players.forEach((p, i) => { html += `<div class="player-item"><span><i class="fas fa-user" style="color:#00d2ff; margin-right:8px;"></i> ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
             container.innerHTML = html;
         }
         renderPlayers();
@@ -342,7 +347,7 @@
             document.getElementById('categorySelect').value = id; 
         }
         
-        // --- AYUDA (Click en ? - Solo Móvil/Fallback) ---
+        // --- LÓGICA DE HOVER AGRANDADO (PC) ---
         const helpTexts = {
             'senuelo': {t: 'SEÑUELO', d: 'Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse y acusar mal.'},
             'senuelo_sabe': {t: 'SEÑUELO CONSCIENTE', d: 'Si activas esto, el Señuelo verá "ERES SEÑUELO". Si no, verá "ERES INOCENTE" (creyendo que tiene la palabra real).'},
@@ -352,9 +357,39 @@
         };
         
         function showHelp(key) {
+            if (window.innerWidth > 900) return; 
             let info = helpTexts[key];
             showCustomAlert(info.d, info.t);
         }
+
+        const tooltip = document.getElementById('global-tooltip');
+        
+        document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
+            trigger.addEventListener('mouseenter', (e) => {
+                if (window.innerWidth > 900) {
+                    tooltip.innerText = trigger.getAttribute('data-tooltip');
+                    tooltip.style.display = 'block';
+                }
+            });
+            
+            trigger.addEventListener('mousemove', (e) => {
+                if (window.innerWidth > 900) {
+                    let x = e.clientX + 20;
+                    let y = e.clientY - (tooltip.offsetHeight / 2);
+                    
+                    if (x + 400 > window.innerWidth) x = e.clientX - 400;
+                    if (y + tooltip.offsetHeight > window.innerHeight) y = window.innerHeight - tooltip.offsetHeight - 20;
+                    if (y < 20) y = 20;
+
+                    tooltip.style.left = x + 'px';
+                    tooltip.style.top = y + 'px';
+                }
+            });
+            
+            trigger.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        });
 
         function toggleSenueloSub() { let main = document.getElementById('checkSenuelo').checked; document.getElementById('rowSenueloSabe').style.display = main ? 'flex' : 'none'; }
         
@@ -366,7 +401,6 @@
             let catId = document.getElementById('categorySelect').value;
             if(!catId) { showCustomAlert("¡Falta lo más importante! Selecciona una Categoría de la derecha."); return; }
             
-            // VALIDACIÓN NUMÉRICA
             let inputImp = document.getElementById('impostorCount').value;
             if(inputImp === "" || isNaN(inputImp)) {
                 showCustomAlert("Por favor, ingresa un número válido de impostores.");
