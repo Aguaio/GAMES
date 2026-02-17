@@ -360,6 +360,12 @@
             if(players.length < 3) { showCustomAlert("Se necesitan mínimo 3 jugadores."); return; }
             let catId = document.getElementById('categorySelect').value;
             if(!catId) { showCustomAlert("¡Falta lo más importante! Selecciona una Categoría de la derecha."); return; }
+
+            let inputImp = document.getElementById('impostorCount').value;
+            if(inputImp === "" || isNaN(inputImp)) {
+                showCustomAlert("Por favor, ingresa un número válido de impostores.");
+                return;
+            }
             
             let cantImpostores = parseInt(document.getElementById('impostorCount').value);
             let maxImpostores = Math.floor((players.length - 1) / 2);
@@ -394,4 +400,5 @@
         }
     </script>
 </body>
+
 </html>
