@@ -487,6 +487,9 @@ def api_eliminar_categoria(request):
 from django.contrib import messages
 
 def login_admin(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('panel_control') # Si ya está logueado, mándalo al panel
+
     if request.method == 'POST':
         u = request.POST.get('user')
         p = request.POST.get('pass')
@@ -496,8 +499,8 @@ def login_admin(request):
             login(request, user)
             return redirect('panel_control')
         else:
-            # CLAVE: No redireccionamos. Recargamos el mismo archivo con el error.
             messages.error(request, "Usuario o contraseña incorrectos.")
+            # IMPORTANTE: Aquí se queda en la misma página
             return render(request, 'juego/login_admin.html')
             
     return render(request, 'juego/login_admin.html')
@@ -506,5 +509,6 @@ def logout_admin(request):
     logout(request)
 
     return redirect('inicio')
+
 
 
