@@ -76,7 +76,8 @@ def sala_espera(request):
     except SesionGameMaster.DoesNotExist: 
         return redirect('inicio')
 
-    # Traemos TODAS las categorías ordenadas por popularidad
+    # CAMBIO: Traemos TODAS las categorías (sin filtrar por pública)
+    # Ordenamos por popularidad (veces jugada) y luego por nota.
     categorias = Categoria.objects.all().order_by('-cantidad_partidas', '-suma_puntuacion')
 
     return render(request, 'juego/sala_espera.html', {
@@ -94,6 +95,8 @@ def logout_jugador(request):
 
 # --- MOTOR DE JUEGO ---
 
+# EN JUEGO/VIEWS.PY
+
 def distribuir_roles(partida):
     """ El cerebro que decide quién es quién con memoria anti-repetición """
     packs = list(PackPalabras.objects.filter(categoria=partida.categoria_actual))
@@ -107,28 +110,46 @@ def distribuir_roles(partida):
     total_jugadores = len(jugadores)
     cant_impostores = min(partida.cantidad_impostores, total_jugadores - 1)
     
+    # --- LÓGICA ANTI-REPETICIÓN ---
+    # Obtenemos al anfitrión para ver la memoria
     gm = partida.anfitrion
     ultimo_impostor = gm.ultimo_impostor_nombre
     
+    # Intentamos barajar hasta que el primer impostor NO sea el mismo de antes
+    # (Solo si NO es modo compulsivo y hay suficientes jugadores para rotar)
     max_intentos = 10
     for _ in range(max_intentos):
         random.shuffle(jugadores)
+        
+        # Si está activado "Impostor Compulsivo", nos da igual repetir.
         if partida.impostor_compulsivo:
             break
+            
+        # Si no hay memoria previa, cualquier orden sirve.
         if not ultimo_impostor:
             break
+            
+        # Verificamos los candidatos a impostor
         nuevos_impostores = jugadores[:cant_impostores]
         nombres_nuevos = [j.nombre for j in nuevos_impostores]
+        
+        # Si el último impostor NO está en el nuevo grupo, aceptamos la mezcla
         if ultimo_impostor not in nombres_nuevos:
             break
+        
+        # Si llegamos aquí, se repitió. El bucle for intentará barajar de nuevo.
 
+    # Seleccionamos definitivamente
     impostores = jugadores[:cant_impostores]
     inocentes_posibles = jugadores[cant_impostores:] 
 
+    # --- GUARDAR MEMORIA PARA LA PRÓXIMA ---
+    # Guardamos el nombre del primer impostor en la sesión del GM
     if impostores:
         gm.ultimo_impostor_nombre = impostores[0].nombre
         gm.save()
 
+    # Asignar datos a Impostores
     palabra_impostor = "" 
     if partida.modo_dificil:
         palabra_impostor = pack_elegido.palabra_relacionada_2 
@@ -138,6 +159,7 @@ def distribuir_roles(partida):
         imp.palabra_asignada = palabra_impostor
         imp.save()
 
+    # --- SEÑUELO (Si aplica) ---
     if partida.usar_senuelo and len(inocentes_posibles) > 0:
         senuelo = random.choice(inocentes_posibles)
         senuelo.es_senuelo = True
@@ -145,6 +167,7 @@ def distribuir_roles(partida):
         senuelo.save()
         inocentes_posibles.remove(senuelo)
 
+    # --- INOCENTES ---
     for inocente in inocentes_posibles:
         inocente.palabra_asignada = pack_elegido.palabra_principal
         inocente.save()
@@ -158,7 +181,7 @@ def vista_juego(request):
     
     try:
         gm = SesionGameMaster.objects.get(nickname=nick)
-        gm.save() 
+        gm.save() # Ping de actividad
         partida = PartidaLocal.objects.get(anfitrion=gm)
     except:
         return redirect('inicio')
@@ -194,17 +217,22 @@ def iniciar_partida(request):
             jugadores_nombres = data.get('jugadores', [])
             config_data = data.get('config', {})
             
+            # --- VALIDACIÓN DE SEGURIDAD (FIX) ---
+            # Si viene vacío, texto o basura, forzamos a 1
             try:
                 c_imp = int(config_data.get('cant_impostores'))
             except (ValueError, TypeError):
                 c_imp = 1 
+            # -------------------------------------
 
+            # Limpiar partida anterior
             PartidaLocal.objects.filter(anfitrion=gm).delete()
             
+            # 1. Crear Partida
             nueva_partida = PartidaLocal.objects.create(
                 anfitrion=gm,
                 categoria_actual_id=config_data.get('categoria_id'),
-                cantidad_impostores=c_imp,
+                cantidad_impostores=c_imp, # Usamos la variable validada
                 modo_dificil=config_data.get('modo_dificil', False),
                 usar_senuelo=config_data.get('usar_senuelo', False),
                 senuelo_sabe_rol=config_data.get('senuelo_sabe', True),
@@ -213,10 +241,12 @@ def iniciar_partida(request):
                 en_curso=True
             )
 
+            # 2. CONTADOR DE PARTIDAS (+1)
             cat_id = config_data.get('categoria_id')
             if cat_id:
                 Categoria.objects.filter(id=cat_id).update(cantidad_partidas=F('cantidad_partidas') + 1)
 
+            # 3. Crear Jugadores
             orden = 1
             for nombre in jugadores_nombres:
                 if nombre.strip():
@@ -227,6 +257,7 @@ def iniciar_partida(request):
                     )
                     orden += 1
             
+            # Asignar Roles
             if not distribuir_roles(nueva_partida):
                 return JsonResponse({'status': 'error', 'msg': 'La categoría no tiene palabras.'})
 
@@ -242,6 +273,7 @@ def crear_categoria_usuario(request):
     if not nick:
         return redirect('inicio')
 
+    # Obtenemos la config para saber el mínimo
     config_global = ConfiguracionGlobal.get_solo()
 
     if request.method == 'POST':
@@ -249,9 +281,11 @@ def crear_categoria_usuario(request):
             nombre = request.POST.get('nombre_categoria')
             palabras = json.loads(request.POST.get('lista_palabras'))
             
+            # 1. VALIDACIÓN DE NOMBRE
             if Categoria.objects.filter(nombre__iexact=nombre).exists():
                 return JsonResponse({'status': 'error', 'msg': 'Ese nombre ya existe.'})
 
+            # 2. VALIDACIÓN DE CANTIDAD MÍNIMA (NUEVO)
             minimo = config_global.min_packs_categoria
             if len(palabras) < minimo:
                 return JsonResponse({
@@ -259,6 +293,7 @@ def crear_categoria_usuario(request):
                     'msg': f'Faltan palabras. Mínimo requerido: {minimo}. Tienes: {len(palabras)}.'
                 })
 
+            # Crear Categoría (Siempre pública)
             cat = Categoria.objects.create(
                 nombre=nombre, 
                 creada_por_admin=False, 
@@ -277,6 +312,7 @@ def crear_categoria_usuario(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'msg': str(e)})
 
+    # Pasamos el mínimo al template para mostrarlo
     return render(request, 'juego/crear_categoria_usuario.html', {
         'nick': nick,
         'min_packs': config_global.min_packs_categoria
@@ -287,6 +323,7 @@ def api_votar_categoria(request):
         try:
             cat_id = request.POST.get('categoria_id')
             puntos = int(request.POST.get('puntos'))
+            
             if 1 <= puntos <= 5:
                 cat = Categoria.objects.get(id=cat_id)
                 cat.suma_puntuacion += puntos
@@ -297,23 +334,28 @@ def api_votar_categoria(request):
             pass
     return JsonResponse({'status': 'error'})
 
-# --- PANEL DE CONTROL ADMIN (PROTEGIDOS) ---
+# --- PANEL DE CONTROL ADMIN ---
 
-# Hemos agregado login_url='login_admin' para forzar a usar tu diseño neón
-@login_required(login_url='login_admin')
-@user_passes_test(lambda u: u.is_staff, login_url='login_admin')
+@login_required
+@user_passes_test(lambda u: u.is_staff)
 def panel_control(request):
     config = ConfiguracionGlobal.get_solo()
+    
     if request.method == 'POST':
+        # 1. ACTUALIZAR CONFIGURACIÓN
         if 'update_time' in request.POST:
             config.tiempo_sesion_minutos = int(request.POST.get('tiempo_total'))
             config.tiempo_aviso_minutos = int(request.POST.get('tiempo_aviso'))
             config.tiempo_afk_visual_minutos = int(request.POST.get('tiempo_afk_visual'))
             config.tiempo_revelacion_segundos = int(request.POST.get('tiempo_revelacion'))
+            
+            # NUEVO CAMPO
             config.min_packs_categoria = int(request.POST.get('min_packs'))
+            
             config.save()
             messages.success(request, 'Configuración actualizada.')
         
+        # 2. CREAR MODERADOR
         elif 'new_admin' in request.POST:
             if request.user.is_superuser:
                 u = request.POST.get('new_user')
@@ -326,6 +368,7 @@ def panel_control(request):
             else:
                 messages.error(request, 'No tienes permiso.')
 
+        # 3. ELIMINAR ADMIN
         elif 'delete_admin_id' in request.POST:
             if request.user.is_superuser:
                 target_id = int(request.POST.get('delete_admin_id'))
@@ -341,23 +384,36 @@ def panel_control(request):
     return render(request, 'juego/panel_control.html', {'config': config, 'admins': admins})
 
 
-@login_required(login_url='login_admin')
-@user_passes_test(lambda u: u.is_staff, login_url='login_admin')
+@login_required
+@user_passes_test(lambda u: u.is_staff)
 def api_datos_panel(request):
     config = ConfiguracionGlobal.get_solo()
+    
+    # 1. Limpieza de inactivos
     limite_borrado = timezone.now() - datetime.timedelta(minutes=config.tiempo_sesion_minutos)
     SesionGameMaster.objects.filter(ultima_actividad__lt=limite_borrado).delete()
 
+    # 2. Obtener datos ENRIQUECIDOS
     jugadores = SesionGameMaster.objects.all().order_by('-ultima_actividad')
     lista_jugadores = []
+    
     limite_afk_visual = timezone.now() - datetime.timedelta(minutes=config.tiempo_afk_visual_minutos)
 
     for j in jugadores:
         es_afk = j.ultima_actividad < limite_afk_visual
+        
+        # BUSCAMOS QUÉ ESTÁ JUGANDO
         try:
             partida = PartidaLocal.objects.get(anfitrion=j)
-            info_juego = "Jugando Impostor" if partida.en_curso else "Sala de Espera"
-            info_cat = partida.categoria_actual.nombre if partida.categoria_actual else "-"
+            if partida.en_curso:
+                info_juego = "Jugando Impostor"
+            else:
+                info_juego = "Sala de Espera"
+            
+            if partida.categoria_actual:
+                info_cat = partida.categoria_actual.nombre
+            else:
+                info_cat = "-"
         except PartidaLocal.DoesNotExist:
             info_juego = j.juego_actual if j.juego_actual else "En Menú"
             info_cat = "-"
@@ -370,47 +426,67 @@ def api_datos_panel(request):
             'juego': info_juego,
             'categoria': info_cat
         })
+
     return JsonResponse({'jugadores': lista_jugadores})
 
-@login_required(login_url='login_admin')
-@user_passes_test(lambda u: u.is_staff, login_url='login_admin')
+@login_required
+@user_passes_test(lambda u: u.is_staff)
 def api_crear_categoria(request):
     if request.method == 'POST':
         try:
             nombre = request.POST.get('nombre_categoria')
             palabras = json.loads(request.POST.get('lista_palabras'))
+            
+            # CAMBIO: Eliminamos la lectura del checkbox. Siempre True.
+            
             if Categoria.objects.filter(nombre__iexact=nombre).exists():
                 return JsonResponse({'status': 'error', 'msg': 'Categoría ya existe'})
-            cat = Categoria.objects.create(nombre=nombre, creada_por_admin=True, es_publica=True, autor="Admin")
+
+            cat = Categoria.objects.create(
+                nombre=nombre, 
+                creada_por_admin=True, 
+                es_publica=True, # Siempre visible
+                autor="Admin"
+            )
+            
             for p in palabras:
-                PackPalabras.objects.create(categoria=cat, palabra_principal=p['principal'], palabra_relacionada_1=p['rel1'], palabra_relacionada_2=p['rel2'])
+                PackPalabras.objects.create(
+                    categoria=cat,
+                    palabra_principal=p['principal'],
+                    palabra_relacionada_1=p['rel1'],
+                    palabra_relacionada_2=p['rel2']
+                )
             return JsonResponse({'status': 'ok'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'msg': str(e)})
     return JsonResponse({'status': 'error'})
 
-@login_required(login_url='login_admin')
-@user_passes_test(lambda u: u.is_staff, login_url='login_admin')
+@login_required
+@user_passes_test(lambda u: u.is_staff)
 def api_listar_categorias(request):
     cats = Categoria.objects.all().order_by('-id')
-    data = [{'id': c.id, 'nombre': c.nombre, 'total': c.packs.count(), 'publica': c.es_publica, 'jugada': c.cantidad_partidas} for c in cats]
+    # Añadimos 'jugada' al JSON
+    data = [{
+        'id': c.id, 
+        'nombre': c.nombre, 
+        'total': c.packs.count(), 
+        'publica': c.es_publica, 
+        'jugada': c.cantidad_partidas
+    } for c in cats]
     return JsonResponse({'categorias': data})
 
-@login_required(login_url='login_admin')
-@user_passes_test(lambda u: u.is_staff, login_url='login_admin')
+@login_required
+@user_passes_test(lambda u: u.is_staff)
 def api_eliminar_categoria(request):
     if request.method == 'POST':
         Categoria.objects.filter(id=request.POST.get('id')).delete()
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'error'})
 
-# --- LOGIN/LOGOUT ADMIN ---
+# LOGIN/LOGOUT ADMIN
+from django.contrib import messages
 
 def login_admin(request):
-    # Si ya está logueado como staff, mandarlo directo al panel
-    if request.user.is_authenticated and request.user.is_staff:
-        return redirect('panel_control')
-
     if request.method == 'POST':
         u = request.POST.get('user')
         p = request.POST.get('pass')
@@ -421,12 +497,16 @@ def login_admin(request):
             return redirect('panel_control')
         else:
             # Aquí está la clave: mandamos el mensaje y RECARGAMOS el HTML
-            # Al usar render en lugar de redirect, evitamos que Django intente redirecciones externas
             messages.error(request, "Usuario o contraseña incorrectos.")
-            return render(request, 'juego/login_admin.html')
+            return render(request, 'juego/login_admin.html') # Sin redirect
             
     return render(request, 'juego/login_admin.html')
 
 def logout_admin(request):
     logout(request)
+
     return redirect('inicio')
+
+
+
+
