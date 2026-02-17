@@ -8,79 +8,157 @@
     
     <style>
         body {
-            margin: 0; min-height: 100vh;
+            margin: 0; height: 100vh;
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #1e272e, #000000);
             color: white; display: flex; justify-content: center; align-items: center; padding: 20px;
+            box-sizing: border-box; overflow: hidden; /* Evita scroll en el body */
         }
+        
+        /* LAYOUT 3 COLUMNAS */
         .main-container {
-            display: flex; gap: 20px; width: 100%; max-width: 1000px;
+            display: flex; gap: 0; width: 100%; max-width: 1600px; height: 90vh;
             background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
             border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            box-shadow: 0 0 50px rgba(0,0,0,0.6);
         }
-        .col-config { flex: 3; padding: 30px; border-right: 1px solid rgba(255,255,255,0.1); }
-        .col-info { flex: 2; padding: 30px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; justify-content: center; }
 
-        h2 { color: #00d2ff; margin-top: 0; text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
-        label { display: block; margin-bottom: 5px; color: #ccc; font-weight: bold; }
+        /* --- COLUMNA 1: JUGADORES (Izquierda) --- */
+        .col-players { 
+            flex: 0 0 320px; /* Ancho fijo */
+            padding: 25px; 
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; 
+            background: rgba(0,0,0,0.3);
+        }
+
+        /* --- COLUMNA 2: CONFIGURACIÓN (Centro) --- */
+        .col-settings { 
+            flex: 0 0 320px; /* Ancho fijo */
+            padding: 25px; 
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; 
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* --- COLUMNA 3: CATEGORÍAS (Derecha - Resto del espacio) --- */
+        .col-categories { 
+            flex: 1; 
+            padding: 30px; 
+            overflow-y: auto; 
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* TÍTULOS */
+        h2 { 
+            color: #00d2ff; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; 
+            font-size: 1.2rem; margin-bottom: 15px; border-bottom: 2px solid rgba(0, 210, 255, 0.3); 
+            padding-bottom: 10px; display: flex; align-items: center; gap: 10px;
+        }
         
-        .input-group { margin-bottom: 20px; }
+        /* INPUTS */
+        .input-group { margin-bottom: 15px; }
         input[type="text"], input[type="number"] {
-            width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #444;
-            color: white; border-radius: 8px; font-size: 1rem; outline: none; box-sizing: border-box;
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid #444;
+            color: white; border-radius: 8px; font-size: 1rem; outline: none; box-sizing: border-box; transition: 0.3s;
         }
-        input:focus { border-color: #00d2ff; }
+        input:focus { border-color: #00d2ff; background: rgba(0, 210, 255, 0.05); }
 
-        .player-list { max-height: 200px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #333; border-radius: 5px; padding: 5px; }
+        /* LISTA JUGADORES (Con Scroll propio) */
+        .player-list { 
+            flex: 1; /* Ocupa todo el espacio vertical disponible en su columna */
+            overflow-y: auto; margin-bottom: 15px; 
+            border: 1px solid #333; border-radius: 8px; padding: 5px; background: rgba(0,0,0,0.2);
+        }
         .player-item {
-            display: flex; justify-content: space-between; background: rgba(255,255,255,0.1);
-            padding: 8px 15px; border-radius: 5px; margin-bottom: 5px; align-items: center;
+            display: flex; justify-content: space-between; background: rgba(255,255,255,0.05);
+            padding: 10px 12px; border-radius: 5px; margin-bottom: 5px; align-items: center; font-size: 0.95rem;
+            border-left: 3px solid #00d2ff;
         }
-        .btn-add { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-del { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 1.1rem; }
-        .btn-clear-all { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.9rem; margin-left: 10px; }
         
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .btn-add { background: #27ae60; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .btn-add:hover { background: #2ecc71; }
+        .btn-del { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 1rem; opacity: 0.7;}
+        .btn-del:hover { opacity: 1; transform: scale(1.1); }
+        
+        .btn-clear-all { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.8rem; text-decoration: none; opacity: 0.8; transition: 0.3s;}
+        .btn-clear-all:hover { opacity: 1; text-decoration: underline; }
+        
+        /* BOTÓN CREAR */
+        .btn-create-cat { 
+            display: inline-flex; align-items: center; gap: 5px;
+            background: linear-gradient(45deg, #00d2ff, #0077ff); color: white; 
+            padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 119, 255, 0.3); transition: 0.3s;
+        }
+        .btn-create-cat:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 119, 255, 0.5); }
+
+        /* GRID CATEGORÍAS */
+        .cat-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 20px; padding-bottom: 20px;
+        }
         .cat-card {
-            background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 8px;
-            padding: 10px; cursor: pointer; transition: 0.2s; text-align: center;
+            background: linear-gradient(145deg, rgba(30, 39, 46, 0.9), rgba(20, 20, 30, 0.95)); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 15px;
+            padding: 20px; cursor: pointer; transition: all 0.3s; 
+            text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative; overflow: hidden; min-height: 130px;
         }
-        .cat-card:hover { background: rgba(255,255,255,0.1); }
-        .cat-card.selected { background: rgba(0, 210, 255, 0.2); border-color: #00d2ff; box-shadow: 0 0 10px rgba(0, 210, 255, 0.2); }
-        .cat-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
-        .cat-stars { font-size: 0.8rem; color: #aaa; }
-
-        .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.3s; cursor: pointer; position: relative;}
-        .option-row:hover { background: rgba(255,255,255,0.1); }
-        input[type="checkbox"] { transform: scale(1.5); accent-color: #e74c3c; cursor: pointer;}
+        .cat-card:hover { transform: translateY(-5px); border-color: #00d2ff; background: rgba(40, 50, 60, 1); }
+        .cat-card.selected { 
+            border: 2px solid #00d2ff; 
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3); 
+            background: rgba(0, 20, 40, 0.9);
+        }
         
-        .help-icon { color: #00d2ff; margin-left: auto; font-size: 1.1rem; padding: 5px; }
+        .cat-name { font-weight: 800; font-size: 1.1rem; margin-bottom: 10px; color: white; text-transform: uppercase; letter-spacing: 1px; z-index: 2; }
+        .cat-stats {
+            display: flex; gap: 15px; font-size: 0.9rem; color: #aaa; z-index: 2;
+            background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 20px;
+        }
+        
+        /* OPCIONES DE JUEGO */
+        .option-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.2s; cursor: pointer; background: rgba(255,255,255,0.03); }
+        .option-row:hover { background: rgba(255,255,255,0.08); }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: #e74c3c; cursor: pointer; margin: 0; }
+        
+        .help-icon { color: #00d2ff; margin-left: auto; opacity: 0.6; transition: 0.3s; font-size: 1rem; }
+        .help-icon:hover { opacity: 1; transform: scale(1.2); }
 
-        .info-box { border: 2px solid #00d2ff; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); transition: all 0.3s ease; }
-        .info-title { color: #00d2ff; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; }
-        .info-text { color: #aaa; line-height: 1.5; }
-
+        /* BOTÓN JUGAR (Abajo Columna Centro) */
         .btn-start {
-            background: linear-gradient(45deg, #c0392b, #e74c3c); width: 100%; padding: 15px;
-            border: none; border-radius: 10px; color: white; font-size: 1.5rem; font-weight: bold;
-            cursor: pointer; margin-top: 20px; transition: 0.3s; text-transform: uppercase;
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(90deg, #c0392b, #e74c3c); width: 100%; padding: 15px;
+            border: none; border-radius: 10px; color: white; font-size: 1.4rem; font-weight: 900;
+            cursor: pointer; margin-top: auto; /* Empujar al fondo */
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.3);
         }
-        .btn-start:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6); }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(231, 76, 60, 0.5); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a2e; padding: 30px; border-radius: 15px; width: 300px; border: 2px solid #e74c3c; text-align: center; box-shadow: 0 0 30px rgba(231, 76, 60, 0.3); animation: popIn 0.3s ease; }
-        @keyframes popIn { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+        /* SCROLLBAR PERSONALIZADO */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* MODALES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a2e; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid #e74c3c; text-align: center; box-shadow: 0 0 50px rgba(231, 76, 60, 0.2); animation: popIn 0.3s ease; }
+        @keyframes popIn { from{transform:scale(0.8) translateY(20px);opacity:0;} to{transform:scale(1) translateY(0);opacity:1;} }
         
-        .btn-create-cat { font-size: 0.8rem; background: none; border: 1px solid #00d2ff; color: #00d2ff; padding: 2px 8px; border-radius: 10px; cursor: pointer; margin-left: 10px; text-decoration: none; }
-        
-        @media (max-width: 768px) {
-            body { align-items: flex-start; padding: 10px; overflow-y: auto; }
-            .main-container { flex-direction: column; width: 100%; margin-bottom: 20px; max-height: none; }
-            .col-config { padding: 20px; border-right: none; width: 100%; box-sizing: border-box; }
-            .col-info { display: none; } 
-            .cat-grid { grid-template-columns: 1fr; }
+        .btn-modal-confirm { background: #e74c3c; color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-modal-cancel { background: transparent; color: #aaa; border: 2px solid #555; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-modal-cancel:hover { border-color: white; color: white; }
+
+        /* RESPONSIVE (Celular: Vuelve a 1 columna vertical) */
+        @media (max-width: 1000px) {
+            body { height: auto; align-items: flex-start; overflow-y: auto; }
+            .main-container { flex-direction: column; height: auto; overflow: visible; }
+            .col-players, .col-settings { flex: none; width: 100%; height: auto; padding: 20px; border-right: none; border-bottom: 1px solid #333; box-sizing: border-box; }
+            .col-categories { height: auto; min-height: 500px; padding: 20px; }
+            .player-list { max-height: 200px; }
         }
     </style>
 </head>
@@ -88,96 +166,123 @@
 
     <div id="alertModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 id="alertTitle" style="color: #e74c3c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Atención</h2>
-            <p id="alertMessage" style="color: #ddd; font-size: 1.1rem; margin: 20px 0;">Error</p>
-            <button class="btn-start" onclick="closeAlertModal()" style="width: auto; padding: 10px 30px; font-size: 1rem; margin-top: 0;">Entendido</button>
+            <div style="font-size: 3rem; color: #e74c3c; margin-bottom: 15px;"><i class="fas fa-exclamation-circle"></i></div>
+            <h2 id="alertTitle" style="color: white; border:none; margin:0; font-size: 1.5rem;">Atención</h2>
+            <p id="alertMessage" style="color: #bbb; font-size: 1.1rem; margin: 15px 0 25px 0; line-height: 1.5;">Error</p>
+            <button class="btn-modal-confirm" onclick="closeAlertModal()">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay" style="z-index: 2001;">
+        <div class="modal-content" style="border-color: #00d2ff;">
+            <div style="font-size: 3rem; color: #00d2ff; margin-bottom: 15px;"><i class="fas fa-question"></i></div>
+            <h2 style="color: white; border:none; margin:0; font-size: 1.5rem;">¿Estás seguro?</h2>
+            <p id="confirmMessage" style="color: #bbb; font-size: 1.1rem; margin: 15px 0 25px 0;">...</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn-modal-cancel" onclick="closeConfirmModal()">Cancelar</button>
+                <button id="btnConfirmAction" class="btn-modal-confirm" style="background: #00d2ff;">Confirmar</button>
+            </div>
         </div>
     </div>
 
     <div class="main-container">
-        <div class="col-config">
-            <a href="{% url 'menu_juegos' %}" style="color: #aaa; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-arrow-left"></i> Volver al Menú</a>
-            <h2 style="margin-top: 10px;">Configuración de Partida</h2>
+        
+        <div class="col-players">
+            <a href="{% url 'menu_juegos' %}" style="color: #aaa; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; transition: 0.3s;">
+                <i class="fas fa-arrow-left"></i> Volver al Menú
+            </a>
+
+            <h2><i class="fas fa-users"></i> Jugadores</h2>
             
-            <div class="input-group">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <label><i class="fas fa-users"></i> Jugadores</label>
-                    <button class="btn-clear-all" onclick="clearAllPlayers()" title="Borrar lista"><i class="fas fa-trash"></i> Limpiar</button>
-                </div>
-                <div class="player-list" id="playerListContainer"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="newPlayerName" placeholder="Nombre..." onkeypress="handleEnter(event)" maxlength="15">
-                    <button class="btn-add" onclick="addPlayer()"><i class="fas fa-plus"></i></button>
-                </div>
+            <div class="input-group" style="display:flex; gap:8px;">
+                <input type="text" id="newPlayerName" placeholder="Nombre..." onkeypress="handleEnter(event)" maxlength="12">
+                <button class="btn-add" onclick="addPlayer()"><i class="fas fa-plus"></i></button>
             </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <small style="color:#888;">Lista de participantes:</small>
+                <button class="btn-clear-all" onclick="clearAllPlayers()">Limpiar Todo</button>
+            </div>
+
+            <div class="player-list" id="playerListContainer"></div>
+        </div>
+
+        <div class="col-settings">
+            <h2><i class="fas fa-cogs"></i> Configuración</h2>
 
             <div class="input-group">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <label><i class="fas fa-list"></i> Categoría</label>
-                    <a href="{% url 'crear_categoria_usuario' %}" class="btn-create-cat"><i class="fas fa-plus"></i> Crear</a>
-                </div>
-                <input type="hidden" id="categorySelect" value="">
-                <div class="cat-grid" id="catGrid">
-                    {% for cat in categorias %}
-                    <div class="cat-card" onclick="selectCategory(this, '{{ cat.id }}')">
-                        <div class="cat-name">{{ cat.nombre }}</div>
-                        <div class="cat-stars"><i class="fas fa-star" style="color: gold;"></i> {{ cat.ranking }}</div>
-                    </div>
-                    {% empty %}
-                    <div style="color: #888; grid-column: span 2; text-align: center;">No hay categorías. <br>¡Crea una nueva!</div>
-                    {% endfor %}
-                </div>
+                <label><i class="fas fa-user-secret"></i> Cantidad de Impostores</label>
+                <input type="number" id="impostorCount" value="1" min="1" max="3" style="text-align:center; font-weight: bold; font-size: 1.2rem;">
             </div>
 
-            <div style="display:flex; gap: 20px;">
-                <div class="input-group" style="flex:1;">
-                    <label>Impostores</label>
-                    <input type="number" id="impostorCount" value="1" min="1" max="3" style="text-align:center;">
-                </div>
-            </div>
-
-            <label style="margin-top:20px; border-bottom:1px solid #444; padding-bottom:5px;">Opciones Avanzadas</label>
+            <label style="margin-top:10px; color: #00d2ff; text-transform: uppercase; font-size: 0.8rem; border-bottom: 1px solid #444; padding-bottom:5px;">Modos de Juego</label>
             
-            <div class="option-row" onmouseenter="showInfo('senuelo')" onmouseleave="resetInfo()">
+            <div class="option-row">
                 <input type="checkbox" id="checkSenuelo" onchange="toggleSenueloSub()"> 
                 <span>Usar Señuelo</span>
-                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'senuelo')"></i>
+                <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo')"></i>
             </div>
-            <div class="option-row" id="rowSenueloSabe" style="margin-left: 30px; display:none;" onmouseenter="showInfo('senuelo_sabe')" onmouseleave="resetInfo()">
+            
+            <div class="option-row" id="rowSenueloSabe" style="margin-left: 20px; display:none; background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.3);">
                 <input type="checkbox" id="checkSenueloSabe" checked> 
-                <span>Señuelo sabe su rol</span>
-                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'senuelo_sabe')"></i>
+                <span style="font-size: 0.9rem;">Señuelo sabe su rol</span>
+                <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo_sabe')"></i>
             </div>
-            <div class="option-row" onmouseenter="showInfo('dificil')" onmouseleave="resetInfo()">
+
+            <div class="option-row">
                 <input type="checkbox" id="checkDificil"> 
                 <span>Modo Difícil</span>
-                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'dificil')"></i>
+                <i class="fas fa-question-circle help-icon" onclick="showHelp('dificil')"></i>
             </div>
-            <div class="option-row" onmouseenter="showInfo('hermanos')" onmouseleave="resetInfo()">
+            <div class="option-row">
                 <input type="checkbox" id="checkHermanos" checked> 
                 <span>Hermanos Impostores</span>
-                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'hermanos')"></i>
+                <i class="fas fa-question-circle help-icon" onclick="showHelp('hermanos')"></i>
             </div>
-            <div class="option-row" onmouseenter="showInfo('compulsivo')" onmouseleave="resetInfo()">
+            <div class="option-row">
                 <input type="checkbox" id="checkCompulsivo"> 
                 <span>Impostor Compulsivo</span>
-                <i class="fas fa-question-circle help-icon" onclick="showMobileInfo(event, 'compulsivo')"></i>
+                <i class="fas fa-question-circle help-icon" onclick="showHelp('compulsivo')"></i>
             </div>
 
-            <button class="btn-start" onclick="startGame()">INICIAR PARTIDA 🚀</button>
+            <button class="btn-start" onclick="startGame()">JUGAR <i class="fas fa-rocket"></i></button>
         </div>
 
-        <div class="col-info">
-            <div class="info-box" id="infoBox">
-                <div class="info-title" id="infoTitle">INFORMACIÓN</div>
-                <div class="info-text" id="infoText">
-                    Pasa el mouse sobre las opciones para ver qué hace cada una.<br><br>Agrega jugadores y configura tu partida para comenzar.
+        <div class="col-categories">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin:0; border:none; color: white; font-size: 1.8rem;">Selecciona Categoría</h2>
+                <a href="{% url 'crear_categoria_usuario' %}" class="btn-create-cat"><i class="fas fa-plus-circle"></i> Crear Nueva</a>
+            </div>
+            
+            <input type="hidden" id="categorySelect" value="">
+            
+            <div class="cat-grid" id="catGrid">
+                {% for cat in categorias %}
+                <div class="cat-card" onclick="selectCategory(this, '{{ cat.id }}')">
+                    <div style="position: absolute; top: -10px; right: -10px; font-size: 5rem; opacity: 0.05; color: white;">
+                        <i class="fas fa-dice-d20"></i>
+                    </div>
+                    <div class="cat-name">{{ cat.nombre }}</div>
+                    <div class="cat-stats">
+                        <span class="stat-item"><i class="fas fa-star" style="color: gold;"></i> <b>{{ cat.ranking }}</b></span>
+                        <span class="stat-item" style="border-left: 1px solid #555; padding-left: 10px;">
+                            <i class="fas fa-gamepad" style="color: #00d2ff;"></i> {{ cat.cantidad_partidas }}
+                        </span>
+                    </div>
                 </div>
+                {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #666; border: 2px dashed #444; border-radius: 10px;">
+                    <i class="fas fa-ghost" style="font-size: 3rem; margin-bottom: 10px;"></i><br>
+                    No hay categorías disponibles.<br>¡Crea la primera!
+                </div>
+                {% endfor %}
             </div>
         </div>
+
     </div>
 
     <script>
+        // --- MODALES ---
         function showCustomAlert(msg, title="Atención") { 
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = msg; 
@@ -185,67 +290,82 @@
         }
         function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
         
+        let onConfirmCallback = null;
+        function showCustomConfirm(msg, callback) {
+            document.getElementById('confirmMessage').innerText = msg;
+            onConfirmCallback = callback;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            onConfirmCallback = null;
+        }
+        document.getElementById('btnConfirmAction').addEventListener('click', function() {
+            if (onConfirmCallback) onConfirmCallback();
+            closeConfirmModal();
+        });
+
+        // --- LÓGICA JUGADORES ---
         let players = JSON.parse(localStorage.getItem('my_players')) || [];
         function savePlayersToMemory() { localStorage.setItem('my_players', JSON.stringify(players)); }
+        
         function addPlayer() {
             let input = document.getElementById('newPlayerName');
             let name = input.value.trim();
             if(name && !players.includes(name)) { players.push(name); savePlayersToMemory(); renderPlayers(); input.value = ''; input.focus(); }
+            else if(name) { showCustomAlert("Nombre repetido o inválido."); }
         }
         function removePlayer(index) { players.splice(index, 1); savePlayersToMemory(); renderPlayers(); }
-        function clearAllPlayers() { if(confirm('¿Borrar lista?')) { players = []; savePlayersToMemory(); renderPlayers(); } }
+        function clearAllPlayers() { 
+            if(players.length > 0) showCustomConfirm("¿Borrar toda la lista de jugadores?", function() { players = []; savePlayersToMemory(); renderPlayers(); });
+        }
         function renderPlayers() {
             let container = document.getElementById('playerListContainer');
             let html = '';
-            if(players.length === 0) html = '<div style="color:#777; padding:10px; text-align:center;">Agrega jugadores...</div>';
-            players.forEach((p, i) => { html += `<div class="player-item"><span>${i+1}. ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
+            if(players.length === 0) html = '<div style="color:#777; padding:20px; text-align:center; font-style:italic;">Agrega jugadores para empezar...</div>';
+            players.forEach((p, i) => { html += `<div class="player-item"><span><i class="fas fa-user" style="color:#00d2ff; margin-right:8px;"></i> ${p}</span><button class="btn-del" onclick="removePlayer(${i})"><i class="fas fa-times"></i></button></div>`; });
             container.innerHTML = html;
         }
         renderPlayers();
 
         function handleEnter(e) { if(e.key === 'Enter') addPlayer(); }
-        function selectCategory(element, id) { document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected')); element.classList.add('selected'); document.getElementById('categorySelect').value = id; }
         
-        const descriptions = {
-            'default': {t: 'INFORMACIÓN', d: 'Pasa el mouse sobre las opciones para ver qué hace cada una.'},
-            'category': {t: 'CATEGORÍA', d: 'El tema sobre el cual tratará la palabra secreta (Ej: Comida, Países).'},
-            'senuelo': {t: 'SEÑUELO', d: 'Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse.'},
+        // --- SELECCIÓN CATEGORÍA ---
+        function selectCategory(element, id) { 
+            document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected')); 
+            element.classList.add('selected'); 
+            document.getElementById('categorySelect').value = id; 
+        }
+        
+        // --- AYUDA (Click en ?) ---
+        const helpTexts = {
+            'senuelo': {t: 'SEÑUELO', d: 'Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse y acusar mal.'},
             'senuelo_sabe': {t: 'SEÑUELO CONSCIENTE', d: 'Si activas esto, el Señuelo verá "ERES SEÑUELO". Si no, verá "ERES INOCENTE" (creyendo que tiene la palabra real).'},
-            'dificil': {t: 'MODO DIFÍCIL', d: 'El Impostor recibirá una palabra relacionada en lugar de nada, haciendo más difícil detectarlo.'},
-            'hermanos': {t: 'HERMANOS IMPOSTORES', d: 'Si hay más de 1 impostor, compartirán la misma palabra falsa (o ausencia de ella).'},
-            'compulsivo': {t: 'IMPOSTOR COMPULSIVO', d: 'Permite que un jugador repita el rol de Impostor en la siguiente partida (genera paranoia).'}
+            'dificil': {t: 'MODO DIFÍCIL', d: 'El Impostor recibirá una palabra relacionada en lugar de "NO TIENES PALABRA", haciendo más difícil detectarlo.'},
+            'hermanos': {t: 'HERMANOS IMPOSTORES', d: 'Si hay más de 1 impostor, sabrán quiénes son sus compañeros.'},
+            'compulsivo': {t: 'IMPOSTOR COMPULSIVO', d: 'Permite que un jugador repita el rol de Impostor dos veces seguidas. (Normalmente el juego trata de evitarlo).'}
         };
         
-        function showInfo(key) { document.getElementById('infoTitle').innerText = descriptions[key].t; document.getElementById('infoText').innerText = descriptions[key].d; }
-        function resetInfo() { showInfo('default'); }
-        function showMobileInfo(e, key) { e.stopPropagation(); let info = descriptions[key]; showCustomAlert(info.d, info.t); }
+        function showHelp(key) {
+            let info = helpTexts[key];
+            showCustomAlert(info.d, info.t);
+        }
+
         function toggleSenueloSub() { let main = document.getElementById('checkSenuelo').checked; document.getElementById('rowSenueloSabe').style.display = main ? 'flex' : 'none'; }
+        
         setInterval(() => { fetch("{% url 'api_ping' %}"); }, 10000); 
 
+        // --- INICIAR JUEGO ---
         function startGame() {
-            // 1. VALIDACIÓN JUGADORES MÍNIMOS
-            if(players.length < 3) { showCustomAlert("Mínimo 3 jugadores para iniciar."); return; }
-            
+            if(players.length < 3) { showCustomAlert("Se necesitan mínimo 3 jugadores."); return; }
             let catId = document.getElementById('categorySelect').value;
-            if(!catId) { showCustomAlert("Por favor, selecciona una categoría."); return; }
-
-            // 2. VALIDACIÓN DE LÓGICA DE IMPOSTORES
-            let cantImpostores = parseInt(document.getElementById('impostorCount').value);
+            if(!catId) { showCustomAlert("¡Falta lo más importante! Selecciona una Categoría de la derecha."); return; }
             
-            // Regla: No pueden haber tantos impostores como jugadores.
-            // Regla estricta: Los impostores deben ser menos de la mitad para que sea divertido.
+            let cantImpostores = parseInt(document.getElementById('impostorCount').value);
             let maxImpostores = Math.floor((players.length - 1) / 2);
-            if (maxImpostores < 1) maxImpostores = 1; // Al menos 1 si hay 3 jugadores
+            if (maxImpostores < 1) maxImpostores = 1;
 
-            if (cantImpostores >= players.length) {
-                showCustomAlert("¡No pueden ser todos Impostores! Debe haber inocentes.");
-                return;
-            }
-            // Si hay 3 jugadores y ponen 2 impostores -> Error
-            if (players.length === 3 && cantImpostores > 1) {
-                showCustomAlert("Para 3 jugadores, solo puede haber 1 impostor.");
-                return;
-            }
+            if (cantImpostores > maxImpostores) { showCustomAlert(`Para ${players.length} jugadores, máximo ${maxImpostores} impostor(es).`); return; }
 
             let config = {
                 categoria_id: catId,
@@ -256,11 +376,20 @@
                 hermanos: document.getElementById('checkHermanos').checked,
                 compulsivo: document.getElementById('checkCompulsivo').checked
             };
+            
+            let btn = document.querySelector('.btn-start');
+            let originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CREANDO...';
+            
             fetch("{% url 'iniciar_partida' %}", {
                 method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
                 body: JSON.stringify({ jugadores: players, config: config })
             }).then(r => r.json()).then(data => {
-                if(data.status === 'ok') { window.location.href = data.redirect; } else { showCustomAlert("Error: " + data.msg); }
+                if(data.status === 'ok') { window.location.href = data.redirect; } 
+                else { 
+                    showCustomAlert("Error: " + data.msg); 
+                    btn.innerHTML = originalText;
+                }
             });
         }
     </script>

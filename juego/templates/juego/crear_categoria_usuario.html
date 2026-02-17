@@ -13,7 +13,6 @@
         h2 { color: #00d2ff; text-align: center; text-transform: uppercase; margin-top: 0; letter-spacing: 2px; }
         .subtitle { text-align: center; color: #aaa; margin-bottom: 30px; font-size: 0.9rem; }
         
-        /* --- TARJETAS DE SELECCIÓN --- */
         .selection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         
         .mode-card {
@@ -27,45 +26,56 @@
         .mode-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: white; }
         .mode-desc { font-size: 0.85rem; color: #888; line-height: 1.4; }
 
-        /* Estilo específico para IA */
         .mode-card.ai:hover { border-color: #8e44ad; background: rgba(142, 68, 173, 0.05); }
         .mode-card.ai:hover i { color: #8e44ad; }
 
-        /* SECCIONES OCULTAS */
         .form-section { display: none; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* BOTÓN VOLVER AL SELECTOR */
         .btn-back-mode {
             background: none; border: none; color: #aaa; cursor: pointer; 
             margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;
         }
         .btn-back-mode:hover { color: white; text-decoration: underline; }
 
-        /* INPUTS Y BOTONES COMUNES */
         input[type="text"] { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 1rem;}
         input:focus { border-color: #00d2ff; outline: none; }
         
-        /* ESTILOS IA */
         .ai-box { background: rgba(142, 68, 173, 0.1); border: 1px solid #8e44ad; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .btn-prompt { background: #8e44ad; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: flex; justify-content: center; gap: 8px; transition: 0.3s; margin-bottom: 10px; }
-        .btn-prompt:hover { background: #9b59b6; }
         textarea { width: 100%; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; resize: vertical; font-family: monospace; font-size: 0.9rem; margin-top: 10px; }
-        textarea:focus { border-color: #8e44ad; outline: none; }
         .btn-parse { width: 100%; background: #2c3e50; border: 1px solid #8e44ad; color: #d2b4de; padding: 8px; border-radius: 0 0 8px 8px; cursor: pointer; font-weight: bold; margin-top: -5px; }
-        .btn-parse:hover { background: #8e44ad; color: white; }
 
-        /* ESTILOS MANUAL */
         .word-group { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 3px solid #00d2ff; }
         .btn-add { background: #3498db; width: 100%; padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
 
-        /* LISTA PREVIA */
         .list-preview { margin-top: 20px; max-height: 300px; overflow-y: auto; border-top: 1px solid #333; }
         .preview-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; background: rgba(255,255,255,0.02); }
         .preview-text b { color: #00d2ff; }
         .preview-sub { color: #aaa; font-size: 0.9rem; }
 
         .btn-main-action { width: 100%; padding: 15px; background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 20px; }
+
+        .warning-box {
+            background: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c;
+            padding: 10px; margin-top: 15px; border-radius: 8px; color: #ffadad;
+            font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
+        }
+        .valid-box {
+            background: rgba(46, 204, 113, 0.15); border: 1px solid #2ecc71; color: #abebc6;
+        }
+
+        /* --- ESTILOS DE MODALES OSCUROS --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a2e; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; border: 2px solid #e74c3c; text-align: center; box-shadow: 0 0 30px rgba(231, 76, 60, 0.3); animation: popIn 0.3s ease; }
+        @keyframes popIn { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+        
+        /* Botones del Modal de Confirmación */
+        .btn-start { background: linear-gradient(45deg, #c0392b, #e74c3c); color: white; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-modal-confirm { background: linear-gradient(45deg, #c0392b, #e74c3c); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-modal-confirm:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); }
+        .btn-modal-cancel { background: rgba(255,255,255,0.1); color: #ccc; border: 1px solid #555; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-modal-cancel:hover { background: rgba(255,255,255,0.2); color: white; }
 
         @media (max-width: 600px) {
             .selection-grid { grid-template-columns: 1fr; }
@@ -74,23 +84,41 @@
 </head>
 <body>
 
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="alertTitle" style="color: #e74c3c; margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Atención</h2>
+            <p id="alertMessage" style="color: #ddd; font-size: 1.1rem; margin: 20px 0;">Error</p>
+            <button class="btn-start" onclick="closeAlertModal()" style="width: auto; padding: 10px 30px; font-size: 1rem; margin-top: 0;">Entendido</button>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay" style="z-index: 2001;">
+        <div class="modal-content">
+            <h2 style="color: #e74c3c; margin-top: 0;"><i class="fas fa-question-circle"></i> ¿Estás seguro?</h2>
+            <p id="confirmMessage" style="color: #ddd; font-size: 1.1rem; margin: 20px 0;">...</p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                <button class="btn-modal-cancel" onclick="closeConfirmModal()">Cancelar</button>
+                <button id="btnConfirmAction" class="btn-modal-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-        <a href="{% url 'sala_espera' %}" class="btn-back-mode" style="margin-bottom: 10px;"><i class="fas fa-arrow-left"></i> Salir a Sala de Espera</a>
+        <a href="{% url 'sala_espera' %}" class="btn-back-mode" style="margin-bottom: 10px;"><i class="fas fa-arrow-left"></i> Volver a Sala de Espera</a>
         
         <h2>Crear Categoría</h2>
-        <p class="subtitle">Elige cómo quieres crear tu nuevo pack de palabras</p>
+        <p class="subtitle">Elige cómo quieres crear tu nuevo pack</p>
 
         <div id="selectionScreen" class="selection-grid">
             <div class="mode-card ai" onclick="switchMode('ai')">
                 <i class="fas fa-robot"></i>
                 <div class="mode-title">Usar Inteligencia Artificial</div>
-                <div class="mode-desc">Copia un Prompt, pégalo en ChatGPT y trae la lista hecha. ¡Lo más rápido!</div>
+                <div class="mode-desc">Copia un Prompt, pégalo y trae la lista hecha.</div>
             </div>
-            
             <div class="mode-card" onclick="switchMode('manual')">
                 <i class="fas fa-keyboard"></i>
                 <div class="mode-title">Ingreso Manual</div>
-                <div class="mode-desc">Escribe las palabras una por una. Ideal si ya tienes una idea clara.</div>
+                <div class="mode-desc">Escribe las palabras una por una.</div>
             </div>
         </div>
 
@@ -103,6 +131,12 @@
             <div id="aiSection" class="form-section">
                 <div class="ai-box">
                     <div style="color: #d2b4de; font-weight: bold; margin-bottom: 10px;"><i class="fas fa-magic"></i> Generador Automático</div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.9rem; color: #ddd;">¿De qué quieres la categoría?</label>
+                        <input type="text" id="aiTheme" placeholder="Ej: Videojuegos Retro, Comida Mexicana..." style="background: rgba(0,0,0,0.3); border: 1px solid #8e44ad; color: white;">
+                    </div>
+
                     <button class="btn-prompt" onclick="copyPrompt()">
                         <i class="fas fa-copy"></i> 1. Copiar Prompt para ChatGPT
                     </button>
@@ -114,9 +148,9 @@
 
             <div id="manualSection" class="form-section">
                 <div class="word-group">
-                    <input type="text" id="wMain" placeholder="Palabra Inocente (Ej: Superman)">
-                    <input type="text" id="wRel1" placeholder="Señuelo (Ej: Batman)">
-                    <input type="text" id="wRel2" placeholder="Difícil (Ej: Capitán América)">
+                    <input type="text" id="wMain" placeholder="Palabra Inocente">
+                    <input type="text" id="wRel1" placeholder="Señuelo">
+                    <input type="text" id="wRel2" placeholder="Difícil">
                     <button class="btn-add" onclick="addWord()"><i class="fas fa-plus"></i> Agregar Pack</button>
                 </div>
             </div>
@@ -124,6 +158,11 @@
             <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                 <label>Palabras listas: <b id="countWords" style="color:#00d2ff;">0</b></label>
                 <button onclick="clearList()" style="background:none; border:none; color:#e74c3c; cursor:pointer;">Limpiar todo</button>
+            </div>
+
+            <div id="minWarning" class="warning-box">
+                <i class="fas fa-exclamation-circle"></i> 
+                <span>Necesitas mínimo <b>{{ min_packs }}</b> packs para que el juego funcione bien.</span>
             </div>
 
             <div class="list-preview" id="previewList"></div>
@@ -136,22 +175,39 @@
     </div>
 
     <script>
-        let words = [];
+        // --- LÓGICA DE MODALES PERSONALIZADOS ---
+        function showCustomAlert(msg, title="Atención") { 
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = msg; 
+            document.getElementById('alertModal').style.display = 'flex'; 
+        }
+        function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
+        
+        let onConfirmCallback = null;
+        function showCustomConfirm(msg, callback) {
+            document.getElementById('confirmMessage').innerText = msg;
+            onConfirmCallback = callback;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            onConfirmCallback = null;
+        }
+        document.getElementById('btnConfirmAction').addEventListener('click', function() {
+            if (onConfirmCallback) onConfirmCallback();
+            closeConfirmModal();
+        });
+        // ---------------------------------------
 
-        // --- NAVEGACIÓN ENTRE MODOS ---
+        let words = [];
+        const MIN_PACKS = {{ min_packs }};
+
         function switchMode(mode) {
             document.getElementById('selectionScreen').style.display = 'none';
             document.getElementById('formContainer').style.display = 'block';
-            
-            // Ocultar ambas secciones primero
             document.getElementById('aiSection').style.display = 'none';
             document.getElementById('manualSection').style.display = 'none';
-
-            if(mode === 'ai') {
-                document.getElementById('aiSection').style.display = 'block';
-            } else {
-                document.getElementById('manualSection').style.display = 'block';
-            }
+            document.getElementById(mode === 'ai' ? 'aiSection' : 'manualSection').style.display = 'block';
         }
 
         function showSelection() {
@@ -159,44 +215,39 @@
             document.getElementById('selectionScreen').style.display = 'grid';
         }
 
-        // --- LÓGICA IA ---
         function copyPrompt() {
-            const prompt = `Genera una lista para un juego de palabras en un bloque de código de texto plano.\n1. La primera línea debe ser el Nombre de la Categoría.\n2. Las siguientes líneas deben ser tríos de palabras separados por '|'.\n3. Formato: Palabra Común | Señuelo Similar | Palabra Relacionada.\n4. Genera 15 tríos. No enumeres.`;
+            let theme = document.getElementById('aiTheme').value.trim();
+            if(!theme) {
+                showCustomAlert("Por favor, escribe un tema primero para el prompt.");
+                document.getElementById('aiTheme').focus();
+                return;
+            }
+
+            const prompt = `Genera una lista de palabras para un juego de adivinanzas (tipo Impostor). Tema: ${theme}. Formato: Bloque de código texto plano. 1. Título. 2. ${MIN_PACKS} líneas EXACTAS: Inocente | Señuelo | Difícil.`;
             navigator.clipboard.writeText(prompt);
-            alert("¡Prompt copiado! Pégalo en ChatGPT/Gemini y trae el resultado.");
+            showCustomAlert("Prompt copiado. Pégalo en tu IA.", "Éxito");
         }
 
         function parsePaste() {
             const text = document.getElementById('pasteArea').value;
-            if(!text.trim()) return alert("El cuadro está vacío.");
-            
             const lines = text.split('\n');
-            let addedCount = 0;
-
-            if(lines.length > 0 && lines[0].trim() !== "" && !lines[0].includes('|')) {
-                document.getElementById('catName').value = lines[0].trim();
-            }
-
-            for(let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if(!line || !line.includes('|')) continue; 
-                const parts = line.split('|');
-                if(parts.length >= 3) {
-                    words.push({ principal: parts[0].trim(), rel1: parts[1].trim(), rel2: parts[2].trim() });
-                    addedCount++;
+            if(lines.length > 0 && !lines[0].includes('|')) document.getElementById('catName').value = lines[0].trim();
+            
+            lines.forEach(line => {
+                if(line.includes('|')) {
+                    const parts = line.split('|');
+                    if(parts.length >= 3) words.push({ principal: parts[0].trim(), rel1: parts[1].trim(), rel2: parts[2].trim() });
                 }
-            }
+            });
             renderList();
             document.getElementById('pasteArea').value = '';
-            alert(`¡Procesado! Se agregaron ${addedCount} palabras.`);
         }
 
-        // --- LÓGICA MANUAL ---
         function addWord() {
             let m = document.getElementById('wMain').value.trim();
             let r1 = document.getElementById('wRel1').value.trim();
             let r2 = document.getElementById('wRel2').value.trim();
-            if(!m || !r1 || !r2) return alert("Completa los 3 campos.");
+            if(!m || !r1 || !r2) return showCustomAlert("Completa los 3 campos de la palabra.");
             words.push({principal: m, rel1: r1, rel2: r2});
             renderList();
             document.getElementById('wMain').value = '';
@@ -205,7 +256,6 @@
             document.getElementById('wMain').focus();
         }
 
-        // --- FUNCIONES COMUNES ---
         function renderList() {
             let html = '';
             words.forEach((w, i) => {
@@ -216,15 +266,30 @@
             });
             document.getElementById('previewList').innerHTML = html;
             document.getElementById('countWords').innerText = words.length;
+            
+            let warn = document.getElementById('minWarning');
+            if(words.length >= MIN_PACKS) {
+                warn.className = 'warning-box valid-box';
+                warn.innerHTML = '<i class="fas fa-check-circle"></i> <span>¡Cantidad correcta! Listo para publicar.</span>';
+            } else {
+                warn.className = 'warning-box';
+                warn.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>Necesitas mínimo <b>${MIN_PACKS}</b> packs (Faltan ${MIN_PACKS - words.length}).</span>`;
+            }
         }
 
         function remove(i) { words.splice(i, 1); renderList(); }
-        function clearList() { if(confirm("¿Borrar todo?")) { words = []; renderList(); } }
+        
+        function clearList() { 
+            showCustomConfirm("¿Estás seguro de borrar toda la lista actual?", function() {
+                words = []; renderList(); 
+            });
+        }
 
         function saveCategory() {
             let name = document.getElementById('catName').value.trim();
-            if(!name) return alert("Falta el nombre de la categoría");
-            if(words.length < 3) return alert("Agrega al menos 3 packs de palabras.");
+            if(!name) return showCustomAlert("Falta el nombre de la categoría");
+            
+            if(words.length < MIN_PACKS) return showCustomAlert(`¡Alto ahí! Necesitas al menos ${MIN_PACKS} packs para que la categoría sea divertida.`);
 
             let fd = new FormData();
             fd.append('nombre_categoria', name);
@@ -235,10 +300,11 @@
             })
             .then(r => r.json()).then(data => {
                 if(data.status === 'ok') {
-                    alert("¡Categoría creada!");
-                    window.location.href = "{% url 'sala_espera' %}";
+                    showCustomAlert("¡Categoría creada con éxito!", "¡Genial!");
+                    // Esperamos un poco para que lean la alerta antes de redirigir
+                    setTimeout(() => { window.location.href = "{% url 'sala_espera' %}"; }, 1500);
                 } else {
-                    alert("Error: " + data.msg);
+                    showCustomAlert("Error: " + data.msg);
                 }
             });
         }

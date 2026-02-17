@@ -102,9 +102,9 @@
         const CAT_ID = {{ partida.categoria_actual.id }};
     </script>
 
-    <div id="cardPass" class="game-card"> 
+    <div id="cardPass" class="game-card active"> 
         <div class="big-icon icon-neutro"><i class="fas fa-mobile-alt"></i></div>
-        <p style="text-transform: uppercase; letter-spacing: 2px;">Pásale el dispositivo a:</p>
+        <p style="text-transform: uppercase; letter-spacing: 2px;">PÁSALE EL DISPOSITIVO A:</p>
         <h1 id="passName" style="font-size: 3rem; color: #00d2ff; margin: 20px 0;">...</h1>
         <p style="font-size: 0.9rem; color: #666;">(Nadie más debe mirar la pantalla)</p>
         <button class="btn-action" onclick="showReveal()">SOY YO</button>
@@ -254,15 +254,40 @@
         }
 
         function submitAndExit() {
+            // Si el usuario seleccionó alguna estrella
             if(selectedVote > 0) {
                 let fd = new FormData();
                 fd.append('categoria_id', CAT_ID);
                 fd.append('puntos', selectedVote);
-                fetch("{% url 'api_votar_categoria' %}", {
-                    method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}, body: fd
-                });
+
+                // Opción 1: Usar sendBeacon (Ideal para cerrar páginas, no se cancela)
+                if (navigator.sendBeacon) {
+                    // Django necesita el token en el form data para sendBeacon a veces
+                    fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                    navigator.sendBeacon("{% url 'api_votar_categoria' %}", fd);
+                    
+                    // Nos vamos inmediatamente
+                    window.location.href = "{% url 'sala_espera' %}";
+                } 
+                else {
+                    // Opción 2 (Fallback): Fetch con espera (Wait)
+                    fetch("{% url 'api_votar_categoria' %}", {
+                        method: 'POST',
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        body: fd
+                    }).then(() => {
+                        // SOLO nos vamos cuando el servidor responda "OK"
+                        window.location.href = "{% url 'sala_espera' %}";
+                    }).catch(err => {
+                        console.error("Error votando:", err);
+                        // Nos vamos igual aunque falle, para no atrapar al usuario
+                        window.location.href = "{% url 'sala_espera' %}";
+                    });
+                }
+            } else {
+                // Si no votó nada, salir directo
+                window.location.href = "{% url 'sala_espera' %}";
             }
-            window.location.href = "{% url 'sala_espera' %}";
         }
 
         // Iniciar

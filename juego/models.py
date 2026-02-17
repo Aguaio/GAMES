@@ -16,6 +16,9 @@ class Categoria(models.Model):
     suma_puntuacion = models.IntegerField(default=0)
     cantidad_votos = models.IntegerField(default=0)
     
+    # ESTADÍSTICAS
+    cantidad_partidas = models.IntegerField(default=0, verbose_name="Veces Jugada")
+    
     @property
     def ranking(self):
         if self.cantidad_votos == 0: return 0
@@ -38,6 +41,13 @@ class PackPalabras(models.Model):
 class SesionGameMaster(models.Model):
     nickname = models.CharField(max_length=50, unique=True)
     ultima_actividad = models.DateTimeField(auto_now=True)
+    
+    # Estado para el Panel de Admin
+    juego_actual = models.CharField(max_length=50, default="-")
+    estado = models.CharField(max_length=20, default="Conectado")
+
+    # MEMORIA DE IMPOSTOR
+    ultimo_impostor_nombre = models.CharField(max_length=50, blank=True, default="")
 
     def __str__(self):
         return self.nickname
@@ -62,7 +72,6 @@ class PartidaLocal(models.Model):
     en_curso = models.BooleanField(default=False)
     palabra_secreta_actual = models.CharField(max_length=100, blank=True)
 
-# --- ESTA ES LA CLASE QUE FALTABA ---
 class JugadorLocal(models.Model):
     partida = models.ForeignKey(PartidaLocal, on_delete=models.CASCADE, related_name='jugadores')
     nombre = models.CharField(max_length=20)
@@ -86,6 +95,9 @@ class ConfiguracionGlobal(models.Model):
     
     # Timer configurable para Pass & Play
     tiempo_revelacion_segundos = models.IntegerField(default=5, verbose_name="Tiempo para ver rol (seg)")
+
+    # Límite mínimo para crear categorías (Default 40 como pediste)
+    min_packs_categoria = models.IntegerField(default=40, verbose_name="Mínimo packs requeridos")
 
     def save(self, *args, **kwargs):
         if not self.pk and ConfiguracionGlobal.objects.exists(): return
