@@ -12,7 +12,7 @@
             font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #1e272e, #000000);
             color: white; display: flex; justify-content: center; align-items: center; padding: 20px;
-            box-sizing: border-box; overflow: hidden; /* Evita scroll en el body */
+            box-sizing: border-box; overflow: hidden;
         }
         
         /* LAYOUT 3 COLUMNAS */
@@ -23,40 +23,32 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.6);
         }
 
-        /* --- COLUMNA 1: JUGADORES (Izquierda) --- */
+        /* --- COLUMNA 1: JUGADORES --- */
         .col-players { 
-            flex: 0 0 320px; /* Ancho fijo */
-            padding: 25px; 
+            flex: 0 0 320px; padding: 25px; 
             border-right: 1px solid rgba(255,255,255,0.1);
-            display: flex; flex-direction: column; 
-            background: rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; background: rgba(0,0,0,0.3);
         }
 
-        /* --- COLUMNA 2: CONFIGURACIÓN (Centro) --- */
+        /* --- COLUMNA 2: CONFIGURACIÓN --- */
         .col-settings { 
-            flex: 0 0 320px; /* Ancho fijo */
-            padding: 25px; 
+            flex: 0 0 320px; padding: 25px; 
             border-right: 1px solid rgba(255,255,255,0.1);
-            display: flex; flex-direction: column; 
-            background: rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; background: rgba(0,0,0,0.2);
         }
 
-        /* --- COLUMNA 3: CATEGORÍAS (Derecha - Resto del espacio) --- */
+        /* --- COLUMNA 3: CATEGORÍAS --- */
         .col-categories { 
-            flex: 1; 
-            padding: 30px; 
-            overflow-y: auto; 
-            background: rgba(255, 255, 255, 0.02);
+            flex: 1; padding: 30px; 
+            overflow-y: auto; background: rgba(255, 255, 255, 0.02);
         }
 
-        /* TÍTULOS */
         h2 { 
             color: #00d2ff; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; 
             font-size: 1.2rem; margin-bottom: 15px; border-bottom: 2px solid rgba(0, 210, 255, 0.3); 
             padding-bottom: 10px; display: flex; align-items: center; gap: 10px;
         }
         
-        /* INPUTS */
         .input-group { margin-bottom: 15px; }
         input[type="text"], input[type="number"] {
             width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid #444;
@@ -64,10 +56,8 @@
         }
         input:focus { border-color: #00d2ff; background: rgba(0, 210, 255, 0.05); }
 
-        /* LISTA JUGADORES (Con Scroll propio) */
         .player-list { 
-            flex: 1; /* Ocupa todo el espacio vertical disponible en su columna */
-            overflow-y: auto; margin-bottom: 15px; 
+            flex: 1; overflow-y: auto; margin-bottom: 15px; 
             border: 1px solid #333; border-radius: 8px; padding: 5px; background: rgba(0,0,0,0.2);
         }
         .player-item {
@@ -80,11 +70,9 @@
         .btn-add:hover { background: #2ecc71; }
         .btn-del { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 1rem; opacity: 0.7;}
         .btn-del:hover { opacity: 1; transform: scale(1.1); }
-        
         .btn-clear-all { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.8rem; text-decoration: none; opacity: 0.8; transition: 0.3s;}
         .btn-clear-all:hover { opacity: 1; text-decoration: underline; }
         
-        /* BOTÓN CREAR */
         .btn-create-cat { 
             display: inline-flex; align-items: center; gap: 5px;
             background: linear-gradient(45deg, #00d2ff, #0077ff); color: white; 
@@ -93,12 +81,7 @@
         }
         .btn-create-cat:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 119, 255, 0.5); }
 
-        /* GRID CATEGORÍAS */
-        .cat-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 20px; padding-bottom: 20px;
-        }
+        .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding-bottom: 20px; }
         .cat-card {
             background: linear-gradient(145deg, rgba(30, 39, 46, 0.9), rgba(20, 20, 30, 0.95)); 
             border: 1px solid rgba(255,255,255,0.1); border-radius: 15px;
@@ -107,19 +90,11 @@
             position: relative; overflow: hidden; min-height: 130px;
         }
         .cat-card:hover { transform: translateY(-5px); border-color: #00d2ff; background: rgba(40, 50, 60, 1); }
-        .cat-card.selected { 
-            border: 2px solid #00d2ff; 
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3); 
-            background: rgba(0, 20, 40, 0.9);
-        }
+        .cat-card.selected { border: 2px solid #00d2ff; box-shadow: 0 0 25px rgba(0, 210, 255, 0.3); background: rgba(0, 20, 40, 0.9); }
         
         .cat-name { font-weight: 800; font-size: 1.1rem; margin-bottom: 10px; color: white; text-transform: uppercase; letter-spacing: 1px; z-index: 2; }
-        .cat-stats {
-            display: flex; gap: 15px; font-size: 0.9rem; color: #aaa; z-index: 2;
-            background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 20px;
-        }
+        .cat-stats { display: flex; gap: 15px; font-size: 0.9rem; color: #aaa; z-index: 2; background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 20px; }
         
-        /* OPCIONES DE JUEGO */
         .option-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 10px; border-radius: 8px; transition: 0.2s; cursor: pointer; background: rgba(255,255,255,0.03); }
         .option-row:hover { background: rgba(255,255,255,0.08); }
         input[type="checkbox"] { width: 18px; height: 18px; accent-color: #e74c3c; cursor: pointer; margin: 0; }
@@ -127,17 +102,14 @@
         .help-icon { color: #00d2ff; margin-left: auto; opacity: 0.6; transition: 0.3s; font-size: 1rem; }
         .help-icon:hover { opacity: 1; transform: scale(1.2); }
 
-        /* BOTÓN JUGAR (Abajo Columna Centro) */
         .btn-start {
             background: linear-gradient(90deg, #c0392b, #e74c3c); width: 100%; padding: 15px;
             border: none; border-radius: 10px; color: white; font-size: 1.4rem; font-weight: 900;
-            cursor: pointer; margin-top: auto; /* Empujar al fondo */
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; margin-top: auto; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;
             box-shadow: 0 5px 20px rgba(231, 76, 60, 0.3);
         }
         .btn-start:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(231, 76, 60, 0.5); }
 
-        /* SCROLLBAR PERSONALIZADO */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -152,7 +124,26 @@
         .btn-modal-cancel { background: transparent; color: #aaa; border: 2px solid #555; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-modal-cancel:hover { border-color: white; color: white; }
 
-        /* RESPONSIVE (Celular: Vuelve a 1 columna vertical) */
+        /* --- TOOLTIP PERSONALIZADO (CSS MÁGICO) --- */
+        .tooltip-wrapper { position: relative; display: inline-block; }
+        .tooltip-wrapper::after {
+            content: attr(data-tooltip);
+            position: absolute; bottom: 125%; right: 0; width: 250px;
+            background-color: #1a1a2e; color: #fff; text-align: center;
+            padding: 10px; border-radius: 8px; border: 1px solid #00d2ff;
+            font-size: 0.85rem; line-height: 1.4; visibility: hidden; opacity: 0;
+            transition: opacity 0.3s; pointer-events: none; z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); white-space: normal;
+        }
+        .tooltip-wrapper::before {
+            content: ""; position: absolute; bottom: 115%; right: 5px;
+            border-width: 6px; border-style: solid; border-color: #00d2ff transparent transparent transparent;
+            visibility: hidden; opacity: 0; transition: opacity 0.3s;
+        }
+        @media (hover: hover) {
+            .tooltip-wrapper:hover::after, .tooltip-wrapper:hover::before { visibility: visible; opacity: 1; }
+        }
+
         @media (max-width: 1000px) {
             body { height: auto; align-items: flex-start; overflow-y: auto; }
             .main-container { flex-direction: column; height: auto; overflow: visible; }
@@ -160,60 +151,6 @@
             .col-categories { height: auto; min-height: 500px; padding: 20px; }
             .player-list { max-height: 200px; }
         }
-
-        /* --- TOOLTIP PERSONALIZADO (Solo PC) --- */
-        .tooltip-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        /* El texto emergente */
-        .tooltip-wrapper::after {
-            content: attr(data-tooltip); /* Toma el texto del atributo HTML */
-            position: absolute;
-            bottom: 125%; /* Aparece arriba del icono */
-            right: 0;     /* Alineado a la derecha para que no se salga */
-            width: 250px; /* Ancho fijo para que el texto baje de línea */
-            background-color: #1a1a2e;
-            color: #fff;
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #00d2ff;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none; /* Para que el mouse no lo tape */
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            white-space: normal; /* PERMITE SALTOS DE LÍNEA */
-        }
-
-        /* Triangulito decorativo abajo */
-        .tooltip-wrapper::before {
-            content: "";
-            position: absolute;
-            bottom: 115%;
-            right: 5px; /* Ajustado al centro del icono aprox */
-            border-width: 6px;
-            border-style: solid;
-            border-color: #00d2ff transparent transparent transparent;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        /* Mostrar solo cuando hay HOVER (Mouse) */
-        @media (hover: hover) {
-            .tooltip-wrapper:hover::after,
-            .tooltip-wrapper:hover::before {
-                visibility: visible;
-                opacity: 1;
-            }
-        }
-        
     </style>
 </head>
 <body>
@@ -274,29 +211,41 @@
             <div class="option-row">
                 <input type="checkbox" id="checkSenuelo" onchange="toggleSenueloSub()"> 
                 <span>Usar Señuelo</span>
-                <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo')"></i>
+                <span class="tooltip-wrapper" data-tooltip="Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse y acusar mal.">
+                    <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo')"></i>
+                </span>
             </div>
             
             <div class="option-row" id="rowSenueloSabe" style="margin-left: 20px; display:none; background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.3);">
                 <input type="checkbox" id="checkSenueloSabe" checked> 
                 <span style="font-size: 0.9rem;">Señuelo sabe su rol</span>
-                <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo_sabe')"></i>
+                <span class="tooltip-wrapper" data-tooltip="Si activas esto, el Señuelo verá 'ERES SEÑUELO'. Si no, verá 'ERES INOCENTE' (creyendo que tiene la palabra real).">
+                    <i class="fas fa-question-circle help-icon" onclick="showHelp('senuelo_sabe')"></i>
+                </span>
             </div>
 
             <div class="option-row">
                 <input type="checkbox" id="checkDificil"> 
                 <span>Modo Difícil</span>
-                <i class="fas fa-question-circle help-icon" onclick="showHelp('dificil')"></i>
+                <span class="tooltip-wrapper" data-tooltip="El Impostor recibirá una palabra relacionada en lugar de 'NO TIENES PALABRA', haciendo más difícil detectarlo.">
+                    <i class="fas fa-question-circle help-icon" onclick="showHelp('dificil')"></i>
+                </span>
             </div>
+            
             <div class="option-row">
                 <input type="checkbox" id="checkHermanos" checked> 
                 <span>Hermanos Impostores</span>
-                <i class="fas fa-question-circle help-icon" onclick="showHelp('hermanos')"></i>
+                <span class="tooltip-wrapper" data-tooltip="Si hay más de 1 impostor, sabrán quiénes son sus compañeros.">
+                    <i class="fas fa-question-circle help-icon" onclick="showHelp('hermanos')"></i>
+                </span>
             </div>
+            
             <div class="option-row">
                 <input type="checkbox" id="checkCompulsivo"> 
                 <span>Impostor Compulsivo</span>
-                <i class="fas fa-question-circle help-icon" onclick="showHelp('compulsivo')"></i>
+                <span class="tooltip-wrapper" data-tooltip="Permite que un jugador repita el rol de Impostor dos veces seguidas. (Normalmente el juego trata de evitarlo).">
+                    <i class="fas fa-question-circle help-icon" onclick="showHelp('compulsivo')"></i>
+                </span>
             </div>
 
             <button class="btn-start" onclick="startGame()">JUGAR <i class="fas fa-rocket"></i></button>
@@ -391,7 +340,7 @@
             document.getElementById('categorySelect').value = id; 
         }
         
-        // --- AYUDA (Click en ?) ---
+        // --- AYUDA (Click en ? - Solo Móvil/Fallback) ---
         const helpTexts = {
             'senuelo': {t: 'SEÑUELO', d: 'Un jugador Inocente recibirá una palabra muy parecida a la real para confundirse y acusar mal.'},
             'senuelo_sabe': {t: 'SEÑUELO CONSCIENTE', d: 'Si activas esto, el Señuelo verá "ERES SEÑUELO". Si no, verá "ERES INOCENTE" (creyendo que tiene la palabra real).'},
@@ -414,14 +363,15 @@
             if(players.length < 3) { showCustomAlert("Se necesitan mínimo 3 jugadores."); return; }
             let catId = document.getElementById('categorySelect').value;
             if(!catId) { showCustomAlert("¡Falta lo más importante! Selecciona una Categoría de la derecha."); return; }
-
+            
+            // VALIDACIÓN NUMÉRICA
             let inputImp = document.getElementById('impostorCount').value;
             if(inputImp === "" || isNaN(inputImp)) {
                 showCustomAlert("Por favor, ingresa un número válido de impostores.");
                 return;
             }
-            
-            let cantImpostores = parseInt(document.getElementById('impostorCount').value);
+
+            let cantImpostores = parseInt(inputImp);
             let maxImpostores = Math.floor((players.length - 1) / 2);
             if (maxImpostores < 1) maxImpostores = 1;
 
@@ -454,6 +404,4 @@
         }
     </script>
 </body>
-
 </html>
-
