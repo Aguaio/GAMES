@@ -4,9 +4,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-lr*l3vj*u4=#qv6i*om=0hzqg-*()c8d^%%mh2sfkrek(8-z&j'
 
-DEBUG = True
+#DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['*']
+
+# Cambia True por False cuando ya no estés haciendo pruebas de código
+DEBUG = False 
+
+# Y asegúrate de tener tu dominio de Render aquí
+ALLOWED_HOSTS = ['games-gezg.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -109,5 +115,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login_admin'
 LOGIN_REDIRECT_URL = 'inicio'
+
 
 
