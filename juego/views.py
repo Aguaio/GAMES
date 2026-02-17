@@ -496,9 +496,9 @@ def login_admin(request):
             login(request, user)
             return redirect('panel_control')
         else:
-            # SI FALLA: Agregamos un mensaje de error y recargamos la MISMA página
+            # CLAVE: No redireccionamos. Recargamos el mismo archivo con el error.
             messages.error(request, "Usuario o contraseña incorrectos.")
-            return render(request, 'juego/login_admin.html') # Tu plantilla neón
+            return render(request, 'juego/login_admin.html')
             
     return render(request, 'juego/login_admin.html')
 
@@ -506,4 +506,5 @@ def logout_admin(request):
     logout(request)
 
     return redirect('inicio')
+
 
